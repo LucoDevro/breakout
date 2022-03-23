@@ -54,6 +54,7 @@ public class Rectangle {
 	 * @inspects | this, other
 	 * @creates | result
 	 * @pre | other != null
+	 * @post | result == null || result.getSquareLength() == 1
 	 */
 	public Vector collide(Rectangle other) {
 		int thisLeftX = this.TL.getX();
