@@ -34,7 +34,6 @@ public class Rectangle {
 	// Getters
 	/**
 	 * Returns the top left Point object that defines this Rectangle object.
-	 * @inspects | this
 	 */
 	public Point getTopLeft() {
 		return TL;
@@ -42,14 +41,13 @@ public class Rectangle {
 	
 	/**
 	 * Returns the bottom right Point object that defines this Rectangle object.
-	 * @inspects | this
 	 */
 	public Point getBottomRight() {
 		return BR;
 	}
 	
 	/**
-	 * Detects whether two Rectangle objects are colliding and returns the normal vector of the plane of collision by a Vector object.
+	 * Detects whether two Rectangle objects are colliding and returns the normal vector of the plane of collision using a Vector object.
 	 * In case no collision is detected, null is returned.
 	 * @inspects | this, other
 	 * @creates | result
@@ -73,20 +71,18 @@ public class Rectangle {
 			return Vector.RIGHT;
 		}
 		// Collision at the left side of this
-		else if (thisLeftX <= otherRightX && thisRightX > otherRightX && thisCenterY >= otherTopY && thisCenterY <= otherBottomY) {
+		if (thisLeftX <= otherRightX && thisRightX > otherRightX && thisCenterY >= otherTopY && thisCenterY <= otherBottomY) {
 			return Vector.LEFT;
 		}
 		// Collision at the top of this
-		else if (thisBottomY >= otherTopY && thisTopY < otherTopY && thisCenterX >= otherLeftX && thisCenterX <= otherRightX) {
+		if (thisBottomY >= otherTopY && thisTopY < otherTopY && thisCenterX >= otherLeftX && thisCenterX <= otherRightX) {
 			return Vector.DOWN;
 		}
 		// Collision at the bottom of this
-		else if (thisTopY <= otherBottomY && thisBottomY > otherBottomY && thisCenterX >= otherLeftX && thisCenterX <= otherRightX) {
+		if (thisTopY <= otherBottomY && thisBottomY > otherBottomY && thisCenterX >= otherLeftX && thisCenterX <= otherRightX) {
 			return Vector.UP;
 		}
 		// No collision
-		else {
-			return null;
+		return null;
 		}
-	}
 }

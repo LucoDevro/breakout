@@ -72,7 +72,7 @@ public class BreakoutState {
 	// Getters
 	/**
 	 * Returns the array of BallState objects contained within this BreakoutState object.
-	 * @creates | this
+	 * @creates | result
 	 * @inspects | this 
 	 */
 	public BallState[] getBalls() {
@@ -105,22 +105,19 @@ public class BreakoutState {
 		return bottomRight;
 	}
 	
-	// Auxiliary methods
+	// Auxiliary private methods
 	/**
 	 * Removes a supplied BlockState object from the blocks array.
-	 * @inspects | this
+	 * @inspects | this, block
 	 * @mutates | this
-	 * @throws IllegalArgumentException if a null pointer was supplied.
-	 * 	| block == null
+	 * @pre A block cannot be null.
+	 * 	| block != null
 	 * @post The BlockState object that was removed, is not present in the resulting array.
 	 * 	| Stream.of(blocks).allMatch(e -> !(e.equals(block)))
 	 * @post  All BlockState objects in the resulting array were present in the supplied array.
 	 * 	| Stream.of(blocks).allMatch(e -> Stream.of(old(blocks)).anyMatch(f -> f.equals(e)))
 	 */
 	private void removeBlock(BlockState block) {
-		if (block == null) {
-			throw new IllegalArgumentException("You have not supplied a valid block!");
-		}
 		BlockState[] blocksLeft = new BlockState[blocks.length-1];
 		int found=0;
 		for (int index = 0; index<blocks.length; index++) {
@@ -135,19 +132,16 @@ public class BreakoutState {
 	
 	/**
 	 * Removes a supplied BallState object from the balls array.
-	 * @inspects | this
+	 * @inspects | this, ball
 	 * @mutates | this
-	 * @throws IllegalArgumentException if a null pointer was supplied.
-	 * 	| ball == null
+	 * @pre A ball cannot be null.
+	 * 	| ball != null
 	 * @post The BallState object that was removed, is not present in the resulting array.
 	 * 	| Stream.of(balls).allMatch(e -> !(e.equals(ball)))
 	 * @post All BallState objects in the resulting array were present in the supplied array.
 	 * 	| Stream.of(balls).allMatch(e -> Stream.of(old(balls)).anyMatch(f -> f.equals(e)))
 	 */
 	private void removeBall(BallState ball) {
-		if (ball == null) {
-			throw new IllegalArgumentException("You have not supplied a valid ball!");
-		}
 		BallState[] ballsLeft = new BallState[balls.length-1];
 		int found=0;
 		for (int index = 0; index<balls.length; index++) {
@@ -197,13 +191,13 @@ public class BreakoutState {
 			
 			// Bounce ball at the left, at the right and at the top of the game field
 			if (ballLeftX <= 0) {
-				ball=ball.bounce(Vector.RIGHT);
+				ball=ball.bounce(Vector.LEFT);
 			}
 			if (ballRightX >= width) {
 				ball=ball.bounce(Vector.RIGHT);
 			}
 			if (ballTopY <= 0) {
-				ball=ball.bounce(Vector.DOWN);
+				ball=ball.bounce(Vector.UP);
 			}
 			
 			// Remove ball at the bottom of the game field
@@ -216,7 +210,8 @@ public class BreakoutState {
 			// Remove a block if the ball touches it at any side and bounce the ball
 			for (BlockState block: blocks) {
 				Vector normVecBlock = ball.rectangleOf().collide(block.rectangleOf());
-				if (normVecBlock != null) {
+				if (normVecBlock != null && 
+					normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 					ball=ball.bounce(normVecBlock);
 					removeBlock(block);
 				}
@@ -224,7 +219,8 @@ public class BreakoutState {
 			
 			// Bounce the ball at the paddle and give it an additional speed if the paddle is moving
 			Vector normVecPaddle = ball.rectangleOf().collide(paddle.rectangleOf());
-			if (normVecPaddle != null && normVecPaddle.product(Vector.DOWN) > 0) {	// Bounce only when touching the paddle from above
+			if (normVecPaddle != null &&
+				normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 				ball=ball.bounce(normVecPaddle);
 				ball=ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
 			}
@@ -235,7 +231,8 @@ public class BreakoutState {
 	}
 	
 	/**
-	 * Alters paddle such that it has moved 10 units to the right in comparison with the old paddle state.
+	 * Alters paddle such that it has moved maximum 10 units to the right in comparison with the old paddle state,
+	 * while keeping it inside the game field.
 	 * @inspects | this
 	 * @mutates | this
 	 * @post The paddle has moved maximum ten units to the right.
@@ -253,7 +250,8 @@ public class BreakoutState {
 	}
 
 	/**
-	 * Alters paddle such that it has moved 10 units to the left in comparison with the old paddle state.
+	 * Alters paddle such that it has moved maximum 10 units to the left in comparison with the old paddle state,
+	 * while keeping it inside the game field
 	 * @inspects | this
 	 * @mutates | this
 	 * @post The paddle has moved maximum ten units to the left.
@@ -271,7 +269,7 @@ public class BreakoutState {
 	}
 	
 	/**
-	 * Checks whether this BreakoutState object is in a winning state.
+	 * Checks whether this BreakoutState object is in a winning terminal state.
 	 * @inspects | this
 	 */
 	public boolean isWon() {
@@ -279,7 +277,7 @@ public class BreakoutState {
 	}
 
 	/**
-	 * Checks whether this BreakoutState object is in a losing state.
+	 * Checks whether this BreakoutState object is in a losing terminal state.
 	 * @inspects | this
 	 */
 	public boolean isDead() {

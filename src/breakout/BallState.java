@@ -43,7 +43,6 @@ public final class BallState {
 	// Getters
 	/**
 	 * Returns the center Point object contained within this BallState object.
-	 * @inspects | this
 	 */
 	public Point getCenter() {
 		return center;
@@ -51,7 +50,6 @@ public final class BallState {
 	
 	/**
 	 * Returns the velocity Vector object contained within this BallState object.
-	 * @inspects | this
 	 */
 	public Vector getVelocity() {
 		return velocity;
@@ -59,7 +57,6 @@ public final class BallState {
 	
 	/**
 	 * Returns the diameter of the ball represented by this BallState object.
-	 * @inspects | this
 	 */
 	public int getDiameter() {
 		return diameter;
@@ -102,7 +99,6 @@ public final class BallState {
 	 * Returns a new object representing a ball in the breakout game that has bounced on
 	 * a surface with unit normal vector direction and consequently changed its velocity
 	 * in comparison with its old state.
-	 * 
 	 * @creates | result
 	 * @throws IllegalArgumentException if the given direction is not a unit vector
 	 * 	| direction.getSquareLength() != 1
@@ -122,7 +118,6 @@ public final class BallState {
 	 * Returns a new object representing a ball in the breakout game that has rolled in
 	 * its current direction velocity and consequently changed its center point
 	 * in comparison with its old state.
-	 * 
 	 * @creates | result
 	 * @post | result != null
 	 * @post | result.getCenter().equals(old(getCenter().plus(velocity)))
@@ -133,6 +128,12 @@ public final class BallState {
 		return new BallState(center.plus(velocity),diameter,velocity);
 	}
 	
+	/**
+	 * Returns a Rectangle object that represents the rectangle surrounding the ball represented by this BallState object.
+	 * @creates | result
+	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter(),getDiameter())))
+	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter(),getDiameter()))) 
+	 */
 	public Rectangle rectangleOf() {
 		return new Rectangle(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
 	}

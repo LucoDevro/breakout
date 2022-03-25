@@ -36,7 +36,6 @@ public final class PaddleState {
 	// Getters
 	/**
 	 * Returns the center Point object contained within this PaddleState object.
-	 * @inspects | this
 	 */
 	public Point getCenter() {
 		return center;
@@ -44,7 +43,6 @@ public final class PaddleState {
 	
 	/**
 	 * Returns the size Vector object contained within this PaddleState object.
-	 * @inspects | this
 	 */
 	public Vector getSize() {
 		return size;
@@ -63,6 +61,13 @@ public final class PaddleState {
 		return new PaddleState(center, this.size);
 	}
 	
+	/**
+	 * Returns a Rectangle object representing the rectangle surrounding the paddle represented by this PaddleState object.
+	 * 
+	 * @creates | result
+	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
+	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
+	 */
 	public Rectangle rectangleOf() {
 		return new Rectangle(center.minus(size), center.plus(size));
 	}

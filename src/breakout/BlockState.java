@@ -35,7 +35,6 @@ public final class BlockState {
 	// Getters
 	/**
 	 * Returns the topleft Point object contained within this BlockState object
-	 * @inspects | this
 	 */
 	public Point getTopLeft() {
 		return TL;
@@ -43,12 +42,18 @@ public final class BlockState {
 	
 	/**
 	 * Returns the bottomright Point object contained within this BlockState object
-	 * @inspects | this
 	 */
 	public Point getBottomRight() {
 		return BR;
 	}
 	
+	/**
+	 * Returns a Rectangle object representing the rectangle surrounding the block represented by this BlockState object
+	 * 
+	 * @creates | result
+	 * @post | result.getTopLeft().equals(getTopLeft())
+	 * @post | result.getBottomRight().equals(getBottomRight())
+	 */
 	public Rectangle rectangleOf() {
 		return new Rectangle(TL, BR);
 	}
