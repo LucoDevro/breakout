@@ -173,8 +173,6 @@ public class BreakoutState {
 		if (!(paddleDir == 0 || paddleDir == 1 || paddleDir == -1)) {
 			throw new IllegalArgumentException("Paddle direction not understood!");
 		}
-		int width = bottomRight.getX();
-		int height = bottomRight.getY();
 		
 		for (int i=0; i<balls.length; i++) {
 			// Retrieve the current ball state
@@ -193,7 +191,7 @@ public class BreakoutState {
 			if (ballLeftX <= 0) {
 				ball=ball.bounce(Vector.LEFT);
 			}
-			if (ballRightX >= width) {
+			if (ballRightX >= bottomRight.getX()) {
 				ball=ball.bounce(Vector.RIGHT);
 			}
 			if (ballTopY <= 0) {
@@ -201,7 +199,7 @@ public class BreakoutState {
 			}
 			
 			// Remove ball at the bottom of the game field
-			if (ballBottomY >= height) {
+			if (ballBottomY >= bottomRight.getY()) {
 				balls[i]=ball;
 				removeBall(ball);
 				continue;
