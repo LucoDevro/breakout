@@ -51,10 +51,10 @@ public class BreakoutState {
 	 * @post | getPaddle().equals(paddle)
 	 */
 	public BreakoutState(BallState[] balls, BlockState[] blocks, Point bottomRight, PaddleState paddle) {
-		if (Stream.of(balls).anyMatch(e -> e == null) || balls == null) {
+		if (balls == null || Stream.of(balls).anyMatch(e -> e == null)) {
 			throw new IllegalArgumentException("You have supplied an invalid ball!");
 		}
-		if (Stream.of(blocks).anyMatch(e -> e == null) || blocks == null) {
+		if (blocks == null || Stream.of(blocks).anyMatch(e -> e == null)) {
 			throw new IllegalArgumentException("You have supplied an invalid block!");
 		}
 		if (paddle == null) {
