@@ -37,10 +37,10 @@ public class BreakoutState {
 	 * Returns an object representing a game state of the breakout game defined by the balls, the blocks,
 	 * the paddle and the lower right corner point of the game field.
 	 * @creates | result
-	 * @throws IllegalArgumentException if null pointers are supplied.
-	 * 	| Stream.of(balls).anyMatch(e -> e == null)
-	 * @throws IllegalArgumentException if null pointers are supplied.
-	 * 	| Stream.of(blocks).anyMatch(e -> e == null)
+	 * @throws IllegalArgumentException if null pointers or a null object are supplied.
+	 * 	| balls == null || Stream.of(balls).anyMatch(e -> e == null)
+	 * @throws IllegalArgumentException if null pointers or a null object are supplied.
+	 * 	| blocks == null || Stream.of(blocks).anyMatch(e -> e == null)
 	 * @throws IllegalArgumentException if no paddle is supplied.
 	 * 	| paddle == null
 	 * @throws IllegalArgumentException if no lower right corner point is supplied.
@@ -51,10 +51,10 @@ public class BreakoutState {
 	 * @post | getPaddle().equals(paddle)
 	 */
 	public BreakoutState(BallState[] balls, BlockState[] blocks, Point bottomRight, PaddleState paddle) {
-		if (Stream.of(balls).anyMatch(e -> e == null)) {
+		if (Stream.of(balls).anyMatch(e -> e == null) || balls == null) {
 			throw new IllegalArgumentException("You have supplied an invalid ball!");
 		}
-		if (Stream.of(blocks).anyMatch(e -> e == null)) {
+		if (Stream.of(blocks).anyMatch(e -> e == null) || blocks == null) {
 			throw new IllegalArgumentException("You have supplied an invalid block!");
 		}
 		if (paddle == null) {

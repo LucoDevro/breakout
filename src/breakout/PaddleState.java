@@ -23,6 +23,8 @@ public final class PaddleState {
 	 * Returns an object representing a rectangular paddle defined by a center point and a size vector
 	 * that is positive for both coordinates.
 	 * 
+	 * @pre | center != null
+	 * @pre | size != null
 	 * @pre The given size vector must be positive for both coordinates.
 	 * 	| size.getX() >= 0 && size.getY() >= 0
 	 * @post | getCenter().equals(center)
@@ -53,6 +55,7 @@ public final class PaddleState {
 	 * Returns a new object representing a paddle in the breakout game with the same size 
 	 * as the old one, but situated at the given center point.
 	 * @creates | result
+	 * @pre | center != null
 	 * @post | result != null
 	 * @post | result.getCenter().equals(center)
 	 * @post | result.getSize().equals(old(getSize()))

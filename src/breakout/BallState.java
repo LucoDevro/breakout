@@ -26,8 +26,10 @@ public final class BallState {
 	/**
 	 * Returns an object representing a ball in the breakout game defined by a center point,
 	 * a positive diameter and a non-zero initial velocity
-	 * @pre The diameter must be positive.
-	 * 	| diameter >= 0
+	 * @pre | initVelocity != null
+	 * @pre | center != null
+	 * @pre The diameter must be strictly positive.
+	 * 	| diameter > 0
 	 * @pre The initial velocity vector must be different from a zero vector.
 	 * 	| !(initVelocity.equals(new Vector(0,0)))
 	 * @post | getCenter().equals(center)
@@ -67,6 +69,7 @@ public final class BallState {
 	 * Returns a new object representing a ball in the breakout game with the same diameter
 	 * and velocity as the old one, but situated at the given center point.
 	 * @creates | result
+	 * @pre | center != null
 	 * @post | result != null
 	 * @post | result.getCenter().equals(center)
 	 * @post | result.getDiameter() == old(getDiameter())
@@ -80,16 +83,16 @@ public final class BallState {
 	 * Returns a new object representing a ball in the breakout game with the same diameter
 	 * and center point as the old one, but with the given velocity
 	 * @creates | result
-	 * @throws IllegalArgumentException if the given velocity is a zero vector
-	 * 	| velocity.equals(new Vector(0,0))
+	 * @throws IllegalArgumentException if the given velocity is a zero vector or is null
+	 * 	| velocity == null || velocity.equals(new Vector(0,0))
 	 * @post | result != null
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getDiameter() == old(getDiameter())
 	 * @post | result.getVelocity().equals(velocity)
 	 */
 	public BallState setVelocity(Vector velocity) {
-		if (velocity.equals(new Vector(0,0))) {
-			throw new IllegalArgumentException("Given velocity is a zero vector!");
+		if (velocity == null || velocity.equals(new Vector(0,0))) {
+			throw new IllegalArgumentException("Given velocity is invalid!");
 		}
 		return new BallState(this.center,this.diameter,velocity);
 	}
@@ -100,15 +103,15 @@ public final class BallState {
 	 * a surface with unit normal vector direction and consequently changed its velocity
 	 * in comparison with its old state.
 	 * @creates | result
-	 * @throws IllegalArgumentException if the given direction is not a unit vector
-	 * 	| direction.getSquareLength() != 1
+	 * @throws IllegalArgumentException if the given direction is not a unit vector or is null
+	 * 	| direction == null || direction.getSquareLength() != 1
 	 * @post | result != null
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getDiameter() == old(getDiameter())
 	 * @post | result.getVelocity().mirrorOver(direction).equals(old(getVelocity()))
 	 */
 	public BallState bounce(Vector direction) {
-		if (direction.getSquareLength() != 1) {
+		if (direction == null || direction.getSquareLength() != 1) {
 			throw new IllegalArgumentException("Bounce direction is not a unit vector!");
 		}
 		return new BallState(center,diameter,velocity.mirrorOver(direction));

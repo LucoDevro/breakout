@@ -24,6 +24,8 @@ public final class BlockState {
 	 * 
 	 * @pre The upper left point mist be situated up and left from the lower right point
 	 * 	| TL.isUpAndLeftFrom(BR)
+	 * @pre | TL != null
+	 * @pre | BR != null
 	 * @post | getTopLeft()==TL
 	 * @post | getBottomRight()==BR
 	 */
