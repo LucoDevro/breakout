@@ -10,9 +10,9 @@ public class BreakoutApplication {
 
 	public static final String initMap = """
 ##########
+###!######
 ##########
-##########
-##########
+SSS!SSS!#S
      o
 
      =
@@ -23,7 +23,7 @@ public class BreakoutApplication {
 		BreakoutState state = GameMap.createStateFromDescription(initMap);
 		EventQueue.invokeLater(() -> {
 			GameView mazeView = new GameView(state);
-			JFrame frame = new JFrame("Pac-Man");
+			JFrame frame = new JFrame("Breakout");
 			frame.getContentPane().add(mazeView);
 			frame.pack();
 			frame.setLocationRelativeTo(null);
