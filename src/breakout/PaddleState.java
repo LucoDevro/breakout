@@ -1,5 +1,7 @@
 package breakout;
 
+import java.awt.Color;
+
 // TODO: Check whether the encapsulation still holds!
 public abstract class PaddleState {
 	protected Point center;
@@ -9,6 +11,7 @@ public abstract class PaddleState {
 	public abstract Vector getSize();
 	public abstract Rect rectangleOf();
 	public abstract void setCenter(Point center);
+	public abstract Color getColor();
 }
 
 /**
@@ -69,6 +72,10 @@ final class NormalPaddleState extends PaddleState {
 	public Rect rectangleOf() {
 		return new Rect(center.minus(size), center.plus(size));
 	}
+	
+	public Color getColor() {
+		return Color.green;
+	}
 }
 
 final class ReplicatorPaddleState extends PaddleState {
@@ -98,5 +105,9 @@ final class ReplicatorPaddleState extends PaddleState {
 	
 	public int getLifetime() {
 		return lifetime;
+	}
+	
+	public Color getColor() {
+		return Color.yellow;
 	}
 }

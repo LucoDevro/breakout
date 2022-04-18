@@ -1,5 +1,7 @@
 package breakout;
 
+import java.awt.Color;
+
 public abstract class Ball {
 	protected Point center;
 	protected int diameter;
@@ -14,7 +16,7 @@ public abstract class Ball {
 	public abstract void roll();
 	public abstract void bounce(Vector direction);
 	public abstract Rect rectangleOf();
-	
+	public abstract Color getColor();
 }
 
 class NormalBall extends Ball {
@@ -46,6 +48,9 @@ class NormalBall extends Ball {
 	}
 	public Rect rectangleOf() {
 		return new Rect(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
+	}
+	public Color getColor() {
+		return Color.red;
 	}
 	public void hitBlock(Rect rect, boolean destroyed) {
 		Vector direction = this.rectangleOf().collide(rect);
@@ -91,6 +96,9 @@ class SuperBall extends Ball {
 	}
 	public Rect rectangleOf() {
 		return new Rect(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
+	}
+	public Color getColor() {
+		return Color.pink;
 	}
 	public void hitBlock(Rect rect, boolean destroyed) {
 		if (!(destroyed)) {

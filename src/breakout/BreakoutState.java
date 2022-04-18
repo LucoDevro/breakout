@@ -28,6 +28,8 @@ public class BreakoutState {
 	private BlockState[] blocks;
 	private final Point bottomRight;
 	private PaddleState paddle;
+	
+	public static int MAX_ELAPSED_TIME = 1000;
 
 	// Constructor
 	/**

@@ -1,5 +1,7 @@
 package breakout;
 
+import java.awt.Color;
+
 // TODO: Check whether the encapsulation still holds!
 public abstract class BlockState {
 	protected Point TL;
@@ -7,7 +9,8 @@ public abstract class BlockState {
 	
 	public abstract Point getTopLeft();
 	public abstract Point getBottomRight();
-	public abstract Rect rectangleOf();	
+	public abstract Rect rectangleOf();
+	public abstract Color getColor();
 }
 
 /**
@@ -61,6 +64,10 @@ final class NormalBlockState extends BlockState {
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
+	
+	public Color getColor() {
+		return Color.blue;
+	}
 }
 
 final class SturdyBlockState extends BlockState {
@@ -83,6 +90,18 @@ final class SturdyBlockState extends BlockState {
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
+	
+	public Color getColor() {
+		switch (lifetime) {
+		case 3 -> {
+			return Color.gray;}
+		case 2 -> {
+			return Color.lightGray;}
+		case 1 -> {
+			return Color.white;}
+		}
+		return Color.blue;
+	}
 }
 	
 final class PowerupBallBlockState extends BlockState {
@@ -103,6 +122,10 @@ final class PowerupBallBlockState extends BlockState {
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
+	
+	public Color getColor() {
+		return Color.orange;
+	}
 }
 
 final class ReplicatorBlockState extends BlockState {
@@ -122,5 +145,9 @@ final class ReplicatorBlockState extends BlockState {
 	
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
+	}
+	
+	public Color getColor() {
+		return Color.cyan;
 	}
 }

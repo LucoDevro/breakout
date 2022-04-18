@@ -17,7 +17,7 @@ import breakout.BreakoutFacade;
 import breakout.BreakoutState;
 import breakout.Point;
 import breakout.PaddleState;
-import breakout.RectSup;
+import breakout.Rect;
 import breakout.Vector;
 
 @SuppressWarnings("serial")
@@ -153,7 +153,7 @@ public class GameView extends JPanel {
 	private void paintPaddle(Graphics g) {
 		// paddle
 		PaddleState paddle = breakoutState.getPaddle();
-		RectSup loc = facade.getLocation(paddle);
+		Rect loc = facade.getLocation(paddle);
 		Color c = facade.getColor(paddle);
 		Point tl = loc.getTopLeft();
 		Point br = loc.getBottomRight();
@@ -197,7 +197,7 @@ public class GameView extends JPanel {
 		// blocks
 		for (BlockState block : breakoutState.getBlocks()) {
 			g.setColor(facade.getColor(block));
-			RectSup loc = facade.getLocation(block);
+			Rect loc = facade.getLocation(block);
 			Point tl = loc.getTopLeft();
 			Point br = loc.getBottomRight();
 			paintBlock(g, tl, br);
