@@ -1,5 +1,15 @@
 package breakout;
 
+// TODO: Check whether the encapsulation still holds!
+public abstract class BlockState {
+	protected Point TL;
+	protected Point BR;
+	
+	public abstract Point getTopLeft();
+	public abstract Point getBottomRight();
+	public abstract Rect rectangleOf();	
+}
+
 /**
  * Each instance of this class represents a block in the breakout game.
  * 
@@ -9,14 +19,7 @@ package breakout;
  * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 
-public final class BlockState {
-	
-	// Fields
-	/**
-	 * @invar | TL.isUpAndLeftFrom(BR)
-	 */
-	private final Point TL;
-	private final Point BR;;
+final class NormalBlockState extends BlockState {
 	
 	// Constructor
 	/**
@@ -28,7 +31,7 @@ public final class BlockState {
 	 * @post | getTopLeft()==TL
 	 * @post | getBottomRight()==BR
 	 */
-	public BlockState(Point TL, Point BR) {
+	public NormalBlockState(Point TL, Point BR) {
 		this.TL=TL;
 		this.BR=BR;
 	}
@@ -55,7 +58,69 @@ public final class BlockState {
 	 * @post | result.getTopLeft().equals(getTopLeft())
 	 * @post | result.getBottomRight().equals(getBottomRight())
 	 */
-	public Rectangle rectangleOf() {
-		return new Rectangle(TL, BR);
+	public Rect rectangleOf() {
+		return new Rect(TL, BR);
+	}
+}
+
+final class SturdyBlockState extends BlockState {
+	int lifetime;
+	
+	public SturdyBlockState(Point TL, Point BR, int lifetime) {
+		this.TL=TL;
+		this.BR=BR;
+		this.lifetime=lifetime;
+	}
+	
+	public Point getTopLeft() {
+		return TL;
+	}
+	
+	public Point getBottomRight() {
+		return BR;
+	}
+	
+	public Rect rectangleOf() {
+		return new Rect(TL, BR);
+	}
+}
+	
+final class PowerupBallBlockState extends BlockState {
+	
+	public PowerupBallBlockState(Point TL, Point BR) {
+		this.TL=TL;
+		this.BR=BR;
+	}
+	
+	public Point getTopLeft() {
+		return TL;
+	}
+	
+	public Point getBottomRight() {
+		return BR;
+	}
+	
+	public Rect rectangleOf() {
+		return new Rect(TL, BR);
+	}
+}
+
+final class ReplicatorBlockState extends BlockState {
+	
+	public ReplicatorBlockState(Point TL, Point BR) {
+		this.TL=TL;
+		this.BR=BR;
+	}
+	
+	public Point getTopLeft() {
+		return TL;
+	}
+	
+	public Point getBottomRight() {
+		return BR;
+	}
+	
+	public Rect rectangleOf() {
+		return new Rect(TL, BR);
 	}
 }

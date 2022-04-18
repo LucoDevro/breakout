@@ -1,190 +1,88 @@
 package breakout;
 
-import java.util.Objects;
-
 /**
- * Represents a rectangle in a 2-dimensional integer coordinate system.
+ * Each instance of this class represents a rectangle.
  * 
  * @immutable
- * @invar | getTopLeft() != null
- * @invar | getBottomRight() != null
- * @invar | getTopLeft().isUpAndLeftFrom(getBottomRight())
+ * 
+ * @invar The top left point should be situated up and left from the bottom right point.
+ * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 public class Rect {
-
-	/**
-	 * @invar | topLeft != null
-	 * @invar | bottomRight != null
-	 * @invar | topLeft.getX() <= bottomRight.getX()
-	 * @invar | topLeft.getY() <= bottomRight.getY()
-	 */
-	private final Point topLeft;
-	private final Point bottomRight;
 	
-	public static final Vector[] COLLISSION_DIRS = new Vector[] {
-			Vector.UP, Vector.DOWN, Vector.LEFT, Vector.RIGHT
-			}; 
-
+	// Fields
 	/**
-	 * Construct a new rectangle with given top-left and bottom-right coordinate.
-	 * 
-	 * @pre | topLeft != null
-	 * @pre | bottomRight != null
-	 * @pre | topLeft.getX() <= bottomRight.getX()
-	 * @pre | topLeft.getY() <= bottomRight.getY()
-	 * @post | getTopLeft().equals(topLeft)
-	 * @post | getBottomRight().equals(bottomRight)
+	 * @invar | TL.isUpAndLeftFrom(BR)
 	 */
-	public Rect(Point topLeft, Point bottomRight) {
-		this.topLeft = topLeft;
-		this.bottomRight = bottomRight;
+	private final Point TL;
+	private final Point BR;
+	
+	// Constructor
+	/**
+	 * Returns a Rectangle object representing a rectangle as defined by its top left and bottom right point.
+	 * @creates | result
+	 * @pre | TL != null
+	 * @pre | BR != null
+	 * @post | getBottomRight().equals(BR)
+	 * @post | getTopLeft().equals(TL)
+	 */
+	public Rect(Point TL, Point BR) {
+		this.BR=BR;
+		this.TL=TL;
 	}
-
-	/** Return the top-left point of this rectangle */
+	
+	// Getters
+	/**
+	 * Returns the top left Point object that defines this Rectangle object.
+	 */
 	public Point getTopLeft() {
-		return topLeft;
+		return TL;
 	}
-
-	/** Return the bottom-right point of this rectangle */
+	
+	/**
+	 * Returns the bottom right Point object that defines this Rectangle object.
+	 */
 	public Point getBottomRight() {
-		return bottomRight;
+		return BR;
 	}
-
+	
 	/**
-	 * Return whether given point `loc` is inside this rectangle.
-	 * 
-	 * @pre | loc != null
-	 * @post | result == (getTopLeft().isUpAndLeftFrom(loc) && loc.isUpAndLeftFrom(getBottomRight()))
+	 * Detects whether two Rectangle objects are colliding and returns the normal vector of the plane of collision using a Vector object.
+	 * In case no collision is detected, null is returned.
+	 * @inspects | this, other
+	 * @creates | result
+	 * @pre | other != null
+	 * @post | result == null || result.getSquareLength() == 1
 	 */
-	public boolean contains(Point loc) {
-		return getTopLeft().isUpAndLeftFrom(loc) && loc.isUpAndLeftFrom(getBottomRight());
-	}
-
-	/**
-	 * Return whether this rectangle contains a given circle.
-	 * 
-	 * @post | result == (getTopLeft().plus(new Vector(loc.getDiameter(),loc.getDiameter())).isUpAndLeftFrom(getBottomRight()) &&
-	 * 		 |				minusMargin(loc.getRadius()).contains(loc.getCenter()))
-	 */
-	public boolean contains(Circle loc) {
-		return getTopLeft().plus(new Vector(loc.getDiameter(),loc.getDiameter())).isUpAndLeftFrom(getBottomRight()) &&
-				minusMargin(loc.getRadius()).contains(loc.getCenter());
-	}
-
-	/**
-	 * Return whether this rectangle contains a given other rectangle.
-	 * 
-	 * @post | result == (getTopLeft().isUpAndLeftFrom(other.getTopLeft()) && 
-	 *       |            other.getBottomRight().isUpAndLeftFrom(getBottomRight()))
-	 */
-	public boolean contains(Rect other) {
-		return getTopLeft().isUpAndLeftFrom(other.getTopLeft()) && 
-				other.getBottomRight().isUpAndLeftFrom(getBottomRight());
-	}
-
-	/**
-	 * Check whether this rectangle intersects with the given ball and if so, return the direction from the ball to the rectangle.
-	 * This direction may be an approximation for simplicity.
-	 * 
-	 * @pre | ball != null
-	 * @post | result == null || (result.getSquareLength() == 1 && this.contains(ball.getOutermostPoint(result)))
-	 */
-	public Vector collideWith(Circle ball) {
-		for (Vector coldir : COLLISSION_DIRS) {
-			Point c = ball.getOutermostPoint(coldir);
-			if(contains(c)) {
-				return coldir;
-			}
+	public Vector collide(Rect other) {
+		int thisLeftX = this.TL.getX();
+		int thisRightX = this.BR.getX();
+		int thisCenterX = this.TL.getX() + (this.BR.getX() - this.TL.getX())/2;
+		int thisTopY = this.TL.getY();
+		int thisBottomY = this.BR.getY();
+		int thisCenterY = this.TL.getY() + (this.BR.getY() - this.TL.getY())/2;
+		int otherLeftX = other.getTopLeft().getX();
+		int otherRightX = other.getBottomRight().getX();
+		int otherTopY = other.getTopLeft().getY();
+		int otherBottomY = other.getBottomRight().getY();
+		
+		// Collision at the right side of this
+		if (thisRightX >= otherLeftX && thisLeftX < otherLeftX && thisCenterY >= otherTopY && thisCenterY <= otherBottomY) {
+			return Vector.RIGHT;
 		}
+		// Collision at the left side of this
+		if (thisLeftX <= otherRightX && thisRightX > otherRightX && thisCenterY >= otherTopY && thisCenterY <= otherBottomY) {
+			return Vector.LEFT;
+		}
+		// Collision at the top of this
+		if (thisBottomY >= otherTopY && thisTopY < otherTopY && thisCenterX >= otherLeftX && thisCenterX <= otherRightX) {
+			return Vector.DOWN;
+		}
+		// Collision at the bottom of this
+		if (thisTopY <= otherBottomY && thisBottomY > otherBottomY && thisCenterX >= otherLeftX && thisCenterX <= otherRightX) {
+			return Vector.UP;
+		}
+		// No collision
 		return null;
-	}
-
-	/**
-	 * Return the rectangle obtained by subtracting an inner margin from all sides of this rectangle.
-	 * 
-	 * @pre getTopLeft().plus(new Vector(2*dx,2*dy)).isUpAndLeftFrom(getBottomRight())
-	 * @post | result != null
-	 * @post | result.getTopLeft().equals(getTopLeft().plus(new Vector(dx,dy)))
-	 * @post | result.getBottomRight().equals(getBottomRight().minus(new Vector(dx,dy)))
-	 */
-	public Rect minusMargin(int dx, int dy) {
-		Vector dv = new Vector(dx, dy);
-		return new Rect( topLeft.plus(dv),
-						 bottomRight.minus(dv));
-	}
-	
-	/**
-	 * Return the rectangle obtained by subtracting an inner margin from all sides of this rectangle.
-	 * 
-	 * @pre getTopLeft().plus(new Vector(2*d,2*d)).isUpAndLeftFrom(getBottomRight())
-	 * @post | result != null
-	 * @post | result.getTopLeft().equals(getTopLeft().plus(new Vector(d,d)))
-	 * @post | result.getBottomRight().equals(getBottomRight().minus(new Vector(d,d)))
-	 */
-	public Rect minusMargin(int d) {
-		Vector dv = new Vector(d,d);
-		return new Rect( topLeft.plus(dv),
-						 bottomRight.minus(dv));
-	}
-
-	/**
-	 * Return the point inside this rectangle that is as close as possible to a given point p.
-     * 
-	 * @pre | p != null
-	 * @post | result.getX() == Math.min(getBottomRight().getX(), Math.max(getTopLeft().getX(), p.getX()))
-	 * @post | result.getY() == Math.min(getBottomRight().getY(), Math.max(getTopLeft().getY(), p.getY()))
-	 */
-	public Point constrain(Point p) {
-		int nx = Math.min(getBottomRight().getX(), Math.max(getTopLeft().getX(), p.getX()));
-		int ny = Math.min(getBottomRight().getY(), Math.max(getTopLeft().getY(), p.getY()));
-		return new Point(nx, ny);
-	}
-
-	/**
-	 * Return the width of this rectangle.
-	 * 
-	 * post | getBottomRight().getX() - getTopLeft().getX()
-	 */
-	public int getWidth() {
-		return bottomRight.getX() - topLeft.getX();
-	}
-	
-	/**
-	 * Return the height of this rectangle.
-	 * 
-	 * @post | result == (getBottomRight().getY() - getTopLeft().getY())
-	 */
-	public int getHeight() {
-		return bottomRight.getY() - topLeft.getY();
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(bottomRight, topLeft);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Rect other = (Rect) obj;
-		return Objects.equals(bottomRight, other.bottomRight) && Objects.equals(topLeft, other.topLeft);
-	}
-
-	/**
-	 * Move the argument circle by the least amount so that it falls entirely within this rect.
-	 *
-	 * @pre | c.getDiameter() < getWidth()
-	 * @post | contains(result)
-	 * @post | result.getCenter().equals(this.minusMargin(c.getRadius()).constrain(c.getCenter()))
-	 */
-	public Circle constrain(Circle c) {
-		Rect r = this.minusMargin(c.getRadius());
-		Point nc = r.constrain(c.getCenter());
-		return new Circle(nc,c.getDiameter());
-	}
+		}
 }

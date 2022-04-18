@@ -5,8 +5,6 @@ import java.util.stream.Stream;
 /**
  * Each instance of this class represents a game state of the breakout game.
  * 
- * @invar Each ball is situated inside the game field.
- * 	| Stream.of(getBalls()).allMatch(e -> e.getCenter().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.getCenter()))
  * @invar Each block is situated inside the game field.
  * 	| Stream.of(getBlocks()).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
  * @invar The paddle is situated inside the game field.
@@ -21,13 +19,12 @@ public class BreakoutState {
 	
 	// Fields
 	/**
-	 * @invar | Stream.of(balls).allMatch(e -> e.getCenter().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.getCenter()))
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
 	 * @invar | paddle.getCenter().plus(paddle.getSize()).isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(paddle.getCenter().minus(paddle.getSize()))
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().getY() < paddle.getCenter().getY() - paddle.getSize().getY())
 	 * @invar | Point.ORIGIN.isUpAndLeftFrom(bottomRight)
 	 */
-	private BallState[] balls;
+	private Ball[] balls;
 	private BlockState[] blocks;
 	private final Point bottomRight;
 	private PaddleState paddle;
@@ -38,22 +35,16 @@ public class BreakoutState {
 	 * the paddle and the lower right corner point of the game field.
 	 * @creates | result
 	 * @throws IllegalArgumentException if null pointers or a null object are supplied.
-	 * 	| balls == null || Stream.of(balls).anyMatch(e -> e == null)
-	 * @throws IllegalArgumentException if null pointers or a null object are supplied.
 	 * 	| blocks == null || Stream.of(blocks).anyMatch(e -> e == null)
 	 * @throws IllegalArgumentException if no paddle is supplied.
 	 * 	| paddle == null
 	 * @throws IllegalArgumentException if no lower right corner point is supplied.
 	 * 	| bottomRight == null
-	 * @post | Stream.of(getBalls()).allMatch(e -> Stream.of(balls).anyMatch(f -> e.equals(f)))
 	 * @post | Stream.of(getBlocks()).allMatch(e -> Stream.of(blocks).anyMatch(f -> e.equals(f)))
 	 * @post | getBottomRight().equals(bottomRight)
 	 * @post | getPaddle().equals(paddle)
 	 */
-	public BreakoutState(BallState[] balls, BlockState[] blocks, Point bottomRight, PaddleState paddle) {
-		if (balls == null || Stream.of(balls).anyMatch(e -> e == null)) {
-			throw new IllegalArgumentException("You have supplied an invalid ball!");
-		}
+	public BreakoutState(Ball[] balls, BlockState[] blocks, Point bottomRight, PaddleState paddle) {
 		if (blocks == null || Stream.of(blocks).anyMatch(e -> e == null)) {
 			throw new IllegalArgumentException("You have supplied an invalid block!");
 		}
@@ -75,7 +66,7 @@ public class BreakoutState {
 	 * @creates | result
 	 * @inspects | this 
 	 */
-	public BallState[] getBalls() {
+	public Ball[] getBalls() {
 		return balls.clone();
 	}
 
@@ -134,15 +125,9 @@ public class BreakoutState {
 	 * Removes a supplied BallState object from the balls array.
 	 * @inspects | this, ball
 	 * @mutates | this
-	 * @pre A ball cannot be null.
-	 * 	| ball != null
-	 * @post The BallState object that was removed, is not present in the resulting array.
-	 * 	| Stream.of(balls).allMatch(e -> !(e.equals(ball)))
-	 * @post All BallState objects in the resulting array were present in the supplied array.
-	 * 	| Stream.of(balls).allMatch(e -> Stream.of(old(balls)).anyMatch(f -> f.equals(e)))
 	 */
-	private void removeBall(BallState ball) {
-		BallState[] ballsLeft = new BallState[balls.length-1];
+	private void removeBall(Ball ball) {
+		Ball[] ballsLeft = new Ball[balls.length-1];
 		int found=0;
 		for (int index = 0; index<balls.length; index++) {
 			if (ball.equals(balls[index])) {
@@ -164,8 +149,6 @@ public class BreakoutState {
 	 * 	| !(paddleDir == 0 || paddleDir == 1 || paddleDir == -1)
 	 * @post The paddle of the new object state should be identical to the one of the old object state.
 	 * 	| getPaddle().equals(old(getPaddle()))
-	 * @post All balls of the new object state should be rolling.
-	 * 	| Stream.of(getBalls()).allMatch(e -> e.getVelocity() != new Vector(0,0))
 	 * @post All blocks of the new object state should be present in the old object state.
 	 * 	| Stream.of(getBlocks()).allMatch(e -> Stream.of(old(getBlocks())).anyMatch(f -> f.equals(e)))
 	 */
@@ -176,10 +159,10 @@ public class BreakoutState {
 		
 		for (int i=0; i<balls.length; i++) {
 			// Retrieve the current ball state
-			BallState ball=balls[i];
+			Ball ball=balls[i];
 			
 			// Move ball
-			ball=ball.roll();
+			ball.roll();
 			
 			// Determine points and sizes of the ball
 			int ballLeftX = ball.getCenter().minus(new Vector(ball.getDiameter(),0)).getX();
@@ -189,28 +172,30 @@ public class BreakoutState {
 			
 			// Bounce ball at the left, at the right and at the top of the game field
 			if (ballLeftX <= 0) {
-				ball=ball.bounce(Vector.LEFT);
+				ball.bounce(Vector.LEFT);
 			}
 			if (ballRightX >= bottomRight.getX()) {
-				ball=ball.bounce(Vector.RIGHT);
+				ball.bounce(Vector.RIGHT);
 			}
 			if (ballTopY <= 0) {
-				ball=ball.bounce(Vector.UP);
+				ball.bounce(Vector.UP);
 			}
 			
 			// Remove ball at the bottom of the game field
 			if (ballBottomY >= bottomRight.getY()) {
-				balls[i]=ball;
 				removeBall(ball);
 				continue;
 			}
 			
 			// Remove a block if the ball touches it at any side and bounce the ball
 			for (BlockState block: blocks) {
-				Vector normVecBlock = ball.rectangleOf().collide(block.rectangleOf());
+				Rect blockRect = block.rectangleOf();
+				Vector normVecBlock = ball.rectangleOf().collide(blockRect);
 				if (normVecBlock != null && 
 					normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
-					ball=ball.bounce(normVecBlock);
+					boolean destroyed = true;
+					// TODO: add differentiator for sturdy block types
+					ball.hitBlock(blockRect, destroyed);
 					removeBlock(block);
 				}
 			}
@@ -219,12 +204,9 @@ public class BreakoutState {
 			Vector normVecPaddle = ball.rectangleOf().collide(paddle.rectangleOf());
 			if (normVecPaddle != null &&
 				normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
-				ball=ball.bounce(normVecPaddle);
-				ball=ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
+				ball.bounce(normVecPaddle);
+				ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
 			}
-			
-			// Fix the new ball state
-			balls[i]=ball;
 		}
 	}
 	
@@ -244,7 +226,7 @@ public class BreakoutState {
 		if (newCenter.plus(paddle.getSize()).getX() > bottomRight.getX()) {
 			newCenter=paddle.getCenter();
 		}
-		paddle=paddle.setCenter(newCenter);
+		paddle.setCenter(newCenter);
 	}
 
 	/**
@@ -263,7 +245,7 @@ public class BreakoutState {
 		if (newCenter.minus(paddle.getSize()).getX() < 0) {
 			newCenter=paddle.getCenter();
 		}
-		paddle=paddle.setCenter(newCenter);
+		paddle.setCenter(newCenter);
 	}
 	
 	/**

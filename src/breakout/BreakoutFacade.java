@@ -55,7 +55,7 @@ public class BreakoutFacade {
 		return null;
 	}
 
-	public Rect getLocation(PaddleState paddle) {
+	public RectSup getLocation(PaddleState paddle) {
 		// TODO
 		return null;
 	}
@@ -80,7 +80,7 @@ public class BreakoutFacade {
 		return null;
 	}
 
-	public Rect getLocation(BlockState block) {
+	public RectSup getLocation(BlockState block) {
 		// TODO
 		return null;
 	}

@@ -137,7 +137,7 @@ public final class BallState {
 	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter(),getDiameter())))
 	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter(),getDiameter()))) 
 	 */
-	public Rectangle rectangleOf() {
-		return new Rectangle(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
+	public Rect rectangleOf() {
+		return new Rect(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
 	}
 }

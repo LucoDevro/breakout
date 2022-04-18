@@ -1,5 +1,16 @@
 package breakout;
 
+// TODO: Check whether the encapsulation still holds!
+public abstract class PaddleState {
+	protected Point center;
+	protected Vector size;
+	
+	public abstract Point getCenter();
+	public abstract Vector getSize();
+	public abstract Rect rectangleOf();
+	public abstract void setCenter(Point center);
+}
+
 /**
  * Each instance of this class represents a paddle of the breakout game.
  * 
@@ -9,14 +20,7 @@ package breakout;
  * 	| getSize().getX() >= 0 && getSize().getY() >= 0
  */
 
-public final class PaddleState {
-	
-	// Fields
-	/**
-	 * @invar | size.getX() >= 0 && size.getY() >= 0
-	 */
-	private final Point center;
-	private final Vector size;
+final class NormalPaddleState extends PaddleState {
 	
 	// Constructor
 	/**
@@ -30,7 +34,7 @@ public final class PaddleState {
 	 * @post | getCenter().equals(center)
 	 * @post | getSize().equals(size)
 	 */
-	public PaddleState(Point center, Vector size) {
+	public NormalPaddleState(Point center, Vector size) {
 		this.center=center;
 		this.size=size;
 	}
@@ -51,17 +55,8 @@ public final class PaddleState {
 	}
 	
 	// Setters
-	/**
-	 * Returns a new object representing a paddle in the breakout game with the same size 
-	 * as the old one, but situated at the given center point.
-	 * @creates | result
-	 * @pre | center != null
-	 * @post | result != null
-	 * @post | result.getCenter().equals(center)
-	 * @post | result.getSize().equals(old(getSize()))
-	 */
-	public PaddleState setCenter(Point center) {
-		return new PaddleState(center, this.size);
+	public void setCenter(Point center) {
+		this.center = center;
 	}
 	
 	/**
@@ -71,7 +66,37 @@ public final class PaddleState {
 	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
 	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
 	 */
-	public Rectangle rectangleOf() {
-		return new Rectangle(center.minus(size), center.plus(size));
+	public Rect rectangleOf() {
+		return new Rect(center.minus(size), center.plus(size));
+	}
+}
+
+final class ReplicatorPaddleState extends PaddleState {
+	int lifetime;
+	
+	public ReplicatorPaddleState(Point center, Vector size, int i) {
+		this.center=center;
+		this.size=size;
+		this.lifetime=i;
+	}
+	
+	public Point getCenter() {
+		return center;
+	}
+	
+	public Vector getSize() {
+		return size;
+	}
+	
+	public Rect rectangleOf() {
+		return new Rect(center.minus(size), center.plus(size));
+	}
+	
+	public void setCenter(Point center) {
+		this.center=center;
+	}
+	
+	public int getLifetime() {
+		return lifetime;
 	}
 }
