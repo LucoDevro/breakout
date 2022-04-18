@@ -29,7 +29,7 @@ public class BreakoutState {
 	private final Point bottomRight;
 	private PaddleState paddle;
 	
-	public static int MAX_ELAPSED_TIME = 1000;
+	public static int MAX_ELAPSED_TIME = 50;
 
 	// Constructor
 	/**
@@ -154,7 +154,7 @@ public class BreakoutState {
 	 * @post All blocks of the new object state should be present in the old object state.
 	 * 	| Stream.of(getBlocks()).allMatch(e -> Stream.of(old(getBlocks())).anyMatch(f -> f.equals(e)))
 	 */
-	public void tick(int paddleDir) {
+	public void tick(int paddleDir, int elapsedTime) {
 		if (!(paddleDir == 0 || paddleDir == 1 || paddleDir == -1)) {
 			throw new IllegalArgumentException("Paddle direction not understood!");
 		}
@@ -162,9 +162,16 @@ public class BreakoutState {
 		for (int i=0; i<balls.length; i++) {
 			// Retrieve the current ball state
 			Ball ball=balls[i];
+			if (ball instanceof SuperBall superball) {
+				superball.age(elapsedTime);
+				if (superball.getLifeTime() <= 0) {
+					ball = superball.convertToNormal();
+					balls[i] = ball;
+				}
+			}
 			
 			// Move ball
-			ball.roll();
+			ball.roll(elapsedTime);
 			
 			// Determine points and sizes of the ball
 			int ballLeftX = ball.getCenter().minus(new Vector(ball.getDiameter(),0)).getX();
@@ -190,15 +197,46 @@ public class BreakoutState {
 			}
 			
 			// Remove a block if the ball touches it at any side and bounce the ball
-			for (BlockState block: blocks) {
+			for (int j=0; j<blocks.length; j++) {
+				BlockState block=blocks[j];
 				Rect blockRect = block.rectangleOf();
 				Vector normVecBlock = ball.rectangleOf().collide(blockRect);
 				if (normVecBlock != null && 
 					normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 					boolean destroyed = true;
-					// TODO: add differentiator for sturdy block types
+					
+					// Block is always destroyed unless block is a sturdy one with a lifetime bigger than 1.
+					if (block instanceof SturdyBlockState sturdyBlock) {
+						if (sturdyBlock.getLifetime() > 1) {
+							destroyed=false;
+							blocks[j] = sturdyBlock.decreaseLifetime();
+						}
+					}
+					if (destroyed) {
+						removeBlock(block);
+					}
+					
+					// Make ball bounce when required 
 					ball.hitBlock(blockRect, destroyed);
-					removeBlock(block);
+					
+					// Execute effects of other block types
+					if (block instanceof PowerupBallBlockState) {
+						if (ball instanceof SuperBall superBall) {
+							superBall.setLifetime(3);
+							balls[i] = superBall;
+						}
+						else if (ball instanceof NormalBall normalBall) {
+							balls[i] = normalBall.convertToSuper();
+						}
+					}
+					if (block instanceof ReplicatorBlockState) {
+						if (paddle instanceof NormalPaddleState normPaddle) {
+							paddle = normPaddle.convertToReplicator();
+						}
+						else if (paddle instanceof ReplicatorPaddleState repPaddle) {
+							paddle = repPaddle.resetLifetime();
+						}
+					}
 				}
 			}
 			
@@ -208,8 +246,24 @@ public class BreakoutState {
 				normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 				ball.bounce(normVecPaddle);
 				ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
+				if (paddle instanceof ReplicatorPaddleState repPaddle) {
+					replicateBall(ball,repPaddle.getLifetime());
+					paddle=repPaddle.decreaseLifetime();
+				}
 			}
 		}
+	}
+	
+	private void replicateBall(Ball ball, int reps) {
+		Ball[] expanded = new Ball[balls.length+reps];
+		for (int i=0; i<balls.length; i++) {
+			expanded[i] = balls[i];
+		}
+		Ball[] replicated = ball.replicate(reps);
+		for (int j=0; j<reps; j++) {
+			expanded[balls.length+j] = replicated[j];
+		}
+		balls=expanded;
 	}
 	
 	/**
@@ -223,8 +277,8 @@ public class BreakoutState {
 	 * @post The size of the paddle remained constant
 	 * 	| getPaddle().getSize().equals(old(getPaddle().getSize()))	
 	 */
-	public void movePaddleRight() {
-		Point newCenter = paddle.getCenter().plus(new Vector(10,0));
+	public void movePaddleRight(int elapsedTime) {
+		Point newCenter = paddle.getCenter().plus(new Vector(10*elapsedTime,0));
 		if (newCenter.plus(paddle.getSize()).getX() > bottomRight.getX()) {
 			newCenter=paddle.getCenter();
 		}
@@ -242,8 +296,8 @@ public class BreakoutState {
 	 * @post The size of the paddle remained constant
 	 * 	| getPaddle().getSize().equals(old(getPaddle().getSize()))	
 	 */
-	public void movePaddleLeft() {
-		Point newCenter = paddle.getCenter().minus(new Vector(10,0));
+	public void movePaddleLeft(int elapsedTime) {
+		Point newCenter = paddle.getCenter().minus(new Vector(10*elapsedTime,0));
 		if (newCenter.minus(paddle.getSize()).getX() < 0) {
 			newCenter=paddle.getCenter();
 		}

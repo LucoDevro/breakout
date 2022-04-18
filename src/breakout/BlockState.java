@@ -71,7 +71,7 @@ final class NormalBlockState extends BlockState {
 }
 
 final class SturdyBlockState extends BlockState {
-	int lifetime;
+	private int lifetime;
 	
 	public SturdyBlockState(Point TL, Point BR, int lifetime) {
 		this.TL=TL;
@@ -85,6 +85,14 @@ final class SturdyBlockState extends BlockState {
 	
 	public Point getBottomRight() {
 		return BR;
+	}
+	
+	public int getLifetime() {
+		return lifetime;
+	}
+	
+	public SturdyBlockState decreaseLifetime() {
+		return new SturdyBlockState(TL,BR,lifetime-1);
 	}
 	
 	public Rect rectangleOf() {

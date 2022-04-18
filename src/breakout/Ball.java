@@ -7,16 +7,19 @@ public abstract class Ball {
 	protected int diameter;
 	protected Vector velocity;
 	
+	static Vector[] replicateBallsSpeedDiff = {new Vector(2,-2), new Vector(-2,2), new Vector(2,2)};
+	
 	public abstract Point getCenter();
 	public abstract int getDiameter();
 	public abstract Vector getVelocity();
 	public abstract void setCenter(Point center);
 	public abstract void setVelocity(Vector velocity);
 	public abstract void hitBlock(Rect rect, boolean destroyed);
-	public abstract void roll();
+	public abstract void roll(int elapsedTime);
 	public abstract void bounce(Vector direction);
 	public abstract Rect rectangleOf();
 	public abstract Color getColor();
+	public abstract Ball[] replicate(int reps);
 }
 
 class NormalBall extends Ball {
@@ -40,8 +43,8 @@ class NormalBall extends Ball {
 	public void setVelocity(Vector velocity) {
 		this.velocity=velocity;
 	}
-	public void roll() {
-		center=center.plus(velocity);
+	public void roll(int elapsedTime) {
+		center=center.plus(velocity.scaled(elapsedTime));
 	}
 	public void bounce(Vector direction) {
 		velocity=velocity.mirrorOver(direction);
@@ -56,12 +59,22 @@ class NormalBall extends Ball {
 		Vector direction = this.rectangleOf().collide(rect);
 		this.bounce(direction);
 	}
+	public SuperBall convertToSuper() {
+		return new SuperBall(center, diameter, velocity, 10000);
+	}
+	public NormalBall[] replicate(int reps) {
+		NormalBall[] replicated = new NormalBall[reps];
+		for (int i=0; i<reps; i++) {
+			replicated[i] = new NormalBall(center, diameter, velocity.plus(replicateBallsSpeedDiff[i]));
+		}
+		return replicated;
+	}
 }
 
 class SuperBall extends Ball {
-	int lifetime;
+	long lifetime;
 	
-	public SuperBall(Point center, int diameter, Vector velocity, int lifetime) {
+	public SuperBall(Point center, int diameter, Vector velocity, long lifetime) {
 		this.center=center;
 		this.diameter=diameter;
 		this.velocity=velocity;
@@ -76,7 +89,7 @@ class SuperBall extends Ball {
 	public Vector getVelocity() {
 		return velocity;
 	}
-	public int getLifeTime() {
+	public long getLifeTime() {
 		return lifetime;
 	}
 	public void setCenter(Point center) {
@@ -88,8 +101,8 @@ class SuperBall extends Ball {
 	public void setLifetime(int lifetime) {
 		this.lifetime = lifetime;
 	}
-	public void roll() {
-		center=center.plus(velocity);
+	public void roll(int elapsedTime) {
+		center=center.plus(velocity.scaled(elapsedTime));
 	}
 	public void bounce(Vector direction) {
 		velocity=velocity.mirrorOver(direction);
@@ -105,5 +118,18 @@ class SuperBall extends Ball {
 			Vector direction = this.rectangleOf().collide(rect);
 			this.bounce(direction);
 		}
+	}
+	public void age(int elapsedTime) {
+		lifetime-=elapsedTime;
+	}
+	public NormalBall convertToNormal() {
+		return new NormalBall(center, diameter, velocity); 
+	}
+	public SuperBall[] replicate(int reps) {
+		SuperBall[] replicated = new SuperBall[reps];
+		for (int i=0; i<reps; i++) {
+			replicated[i] = new SuperBall(center, diameter, velocity.plus(replicateBallsSpeedDiff[i]),lifetime);
+		}
+		return replicated;
 	}
 }

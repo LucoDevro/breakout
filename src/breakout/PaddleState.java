@@ -76,11 +76,15 @@ final class NormalPaddleState extends PaddleState {
 	public Color getColor() {
 		return Color.green;
 	}
+	
+	public ReplicatorPaddleState convertToReplicator() {
+		return new ReplicatorPaddleState(center, size, 3);
+	}
 }
 
 final class ReplicatorPaddleState extends PaddleState {
 	int lifetime;
-	
+		
 	public ReplicatorPaddleState(Point center, Vector size, int i) {
 		this.center=center;
 		this.size=size;
@@ -107,7 +111,23 @@ final class ReplicatorPaddleState extends PaddleState {
 		return lifetime;
 	}
 	
+	public PaddleState decreaseLifetime() {
+		int newage=lifetime-1;
+		if (newage <= 0) {
+			return this.convertToNormal();
+		}
+		return new ReplicatorPaddleState(center,size,newage);
+	}
+	
+	public ReplicatorPaddleState resetLifetime() {
+		return new ReplicatorPaddleState(center,size,3);
+	}
+	
 	public Color getColor() {
 		return Color.yellow;
+	}
+	
+	public NormalPaddleState convertToNormal() {
+		return new NormalPaddleState(center, size);
 	}
 }
