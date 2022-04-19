@@ -10,7 +10,7 @@ import java.util.Objects;
  * @invar | getBottomRight() != null
  * @invar | getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
-public class Rect {
+public class RectSup {
 
 	/**
 	 * @invar | topLeft != null
@@ -35,7 +35,7 @@ public class Rect {
 	 * @post | getTopLeft().equals(topLeft)
 	 * @post | getBottomRight().equals(bottomRight)
 	 */
-	public Rect(Point topLeft, Point bottomRight) {
+	public RectSup(Point topLeft, Point bottomRight) {
 		this.topLeft = topLeft;
 		this.bottomRight = bottomRight;
 	}
@@ -171,7 +171,7 @@ public class Rect {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Rect other = (Rect) obj;
+		RectSup other = (RectSup) obj;
 		return Objects.equals(bottomRight, other.bottomRight) && Objects.equals(topLeft, other.topLeft);
 	}
 

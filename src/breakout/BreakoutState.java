@@ -147,37 +147,29 @@ public class BreakoutState {
 	 * velocities of the balls, the blocks and the paddle. Removes blocks and balls if necessary.
 	 * @inspects | this
 	 * @mutates | this
-	 * @throws IllegalArgumentException if paddleDir is not 0, 1 or -1.
-	 * 	| !(paddleDir == 0 || paddleDir == 1 || paddleDir == -1)
+	 * @pre paddleDir should be 0, 1 or -1.
+	 * 	| paddleDir == 0 || paddleDir == 1 || paddleDir == -1
 	 * @post The paddle of the new object state should be identical to the one of the old object state.
 	 * 	| getPaddle().equals(old(getPaddle()))
 	 * @post All blocks of the new object state should be present in the old object state.
 	 * 	| Stream.of(getBlocks()).allMatch(e -> Stream.of(old(getBlocks())).anyMatch(f -> f.equals(e)))
 	 */
 	public void tick(int paddleDir, int elapsedTime) {
-		if (!(paddleDir == 0 || paddleDir == 1 || paddleDir == -1)) {
-			throw new IllegalArgumentException("Paddle direction not understood!");
-		}
-		
 		for (int i=0; i<balls.length; i++) {
+			
 			// Retrieve the current ball state
 			Ball ball=balls[i];
-			if (ball instanceof SuperBall superball) {
-				superball.age(elapsedTime);
-				if (superball.getLifeTime() <= 0) {
-					ball = superball.convertToNormal();
-					balls[i] = ball;
-				}
-			}
 			
-			// Move ball
+			// Age and move ball
+			ball = ball.age(elapsedTime);
 			ball.roll(elapsedTime);
 			
 			// Determine points and sizes of the ball
-			int ballLeftX = ball.getCenter().minus(new Vector(ball.getDiameter(),0)).getX();
-			int ballRightX = ball.getCenter().plus(new Vector(ball.getDiameter(),0)).getX();
-			int ballTopY = ball.getCenter().minus(new Vector(0,ball.getDiameter())).getY();
-			int ballBottomY = ball.getCenter().plus(new Vector(0,ball.getDiameter())).getY();
+			Rect ballRect = ball.rectangleOf();
+			int ballLeftX = ballRect.getTopLeft().getX();
+			int ballRightX = ballRect.getBottomRight().getX();
+			int ballTopY = ballRect.getTopLeft().getY();
+			int ballBottomY = ballRect.getBottomRight().getY();
 			
 			// Bounce ball at the left, at the right and at the top of the game field
 			if (ballLeftX <= 0) {
@@ -199,62 +191,32 @@ public class BreakoutState {
 			// Remove a block if the ball touches it at any side and bounce the ball
 			for (int j=0; j<blocks.length; j++) {
 				BlockState block=blocks[j];
-				Rect blockRect = block.rectangleOf();
-				Vector normVecBlock = ball.rectangleOf().collide(blockRect);
-				if (normVecBlock != null && 
-					normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
-					boolean destroyed = true;
-					
-					// Block is always destroyed unless block is a sturdy one with a lifetime bigger than 1.
-					if (block instanceof SturdyBlockState sturdyBlock) {
-						if (sturdyBlock.getLifetime() > 1) {
-							destroyed=false;
-							blocks[j] = sturdyBlock.decreaseLifetime();
-						}
-					}
-					if (destroyed) {
-						removeBlock(block);
-					}
-					
-					// Make ball bounce when required 
-					ball.hitBlock(blockRect, destroyed);
-					
-					// Execute effects of other block types
-					if (block instanceof PowerupBallBlockState) {
-						if (ball instanceof SuperBall superBall) {
-							superBall.setLifetime(3);
-							balls[i] = superBall;
-						}
-						else if (ball instanceof NormalBall normalBall) {
-							balls[i] = normalBall.convertToSuper();
-						}
-					}
-					if (block instanceof ReplicatorBlockState) {
-						if (paddle instanceof NormalPaddleState normPaddle) {
-							paddle = normPaddle.convertToReplicator();
-						}
-						else if (paddle instanceof ReplicatorPaddleState repPaddle) {
-							paddle = repPaddle.resetLifetime();
-						}
-					}
+				ballBlockHitResults blockBallHit = block.hitBlock(block, ball, paddle);
+				if (blockBallHit.destroyed) {
+					removeBlock(block);
 				}
+				else {
+					blocks[j] = blockBallHit.block;
+				}
+				ball = blockBallHit.ball;
+				paddle = blockBallHit.paddle;
 			}
 			
-			// Bounce the ball at the paddle and give it an additional speed if the paddle is moving
-			Vector normVecPaddle = ball.rectangleOf().collide(paddle.rectangleOf());
-			if (normVecPaddle != null &&
-				normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
-				ball.bounce(normVecPaddle);
-				ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
-				if (paddle instanceof ReplicatorPaddleState repPaddle) {
-					replicateBall(ball,repPaddle.getLifetime());
-					paddle=repPaddle.decreaseLifetime();
-				}
-			}
+			// Detecting and executing the possible effects of a ball-paddle hit
+			ballPaddleHitResults paddleBallHit = paddle.hitBall(ball, paddleDir);
+			ball = paddleBallHit.ball;
+			replicateBall(ball, paddleBallHit.reps);
+			paddle = paddleBallHit.paddle;
+			
+			// Fix ball state
+			balls[i] = ball;
 		}
 	}
 	
 	private void replicateBall(Ball ball, int reps) {
+		if (reps == 0) {
+			return;
+		}
 		Ball[] expanded = new Ball[balls.length+reps];
 		for (int i=0; i<balls.length; i++) {
 			expanded[i] = balls[i];
@@ -318,5 +280,31 @@ public class BreakoutState {
 	 */
 	public boolean isDead() {
 		return (balls.length == 0);
+	}
+}
+
+class ballPaddleHitResults {
+	final Ball ball;
+	final PaddleState paddle;
+	final int reps;
+	
+	ballPaddleHitResults(Ball ball, PaddleState paddle, int reps) {
+		this.ball=ball;
+		this.paddle=paddle;
+		this.reps=reps;
+	}
+}
+
+class ballBlockHitResults {
+	final BlockState block;
+	final Ball ball;
+	final PaddleState paddle;
+	final boolean destroyed;
+	
+	ballBlockHitResults(BlockState block, Ball ball, PaddleState paddle, boolean destroyed) {
+		this.ball=ball;
+		this.block=block;
+		this.paddle=paddle;
+		this.destroyed=destroyed;
 	}
 }

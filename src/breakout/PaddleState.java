@@ -7,11 +7,15 @@ public abstract class PaddleState {
 	protected Point center;
 	protected Vector size;
 	
+	protected static int LIFETIME = 3;
+	
 	public abstract Point getCenter();
 	public abstract Vector getSize();
 	public abstract Rect rectangleOf();
 	public abstract void setCenter(Point center);
 	public abstract Color getColor();
+	public abstract ballPaddleHitResults hitBall(Ball ball, int paddleDir);
+	public abstract ReplicatorPaddleState powerup();
 }
 
 /**
@@ -78,7 +82,21 @@ final class NormalPaddleState extends PaddleState {
 	}
 	
 	public ReplicatorPaddleState convertToReplicator() {
-		return new ReplicatorPaddleState(center, size, 3);
+		return new ReplicatorPaddleState(center, size, LIFETIME);
+	}
+	
+	public ballPaddleHitResults hitBall(Ball ball, int paddleDir) {
+		Vector normVecPaddle = ball.rectangleOf().overlap(this.rectangleOf());
+		if (normVecPaddle != null &&
+			normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
+			ball.bounce(normVecPaddle);
+			ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
+		}
+		return new ballPaddleHitResults(ball, this, 0);
+	}
+	
+	public ReplicatorPaddleState powerup() {
+		return this.convertToReplicator();
 	}
 }
 
@@ -120,7 +138,7 @@ final class ReplicatorPaddleState extends PaddleState {
 	}
 	
 	public ReplicatorPaddleState resetLifetime() {
-		return new ReplicatorPaddleState(center,size,3);
+		return new ReplicatorPaddleState(center,size,LIFETIME);
 	}
 	
 	public Color getColor() {
@@ -129,5 +147,24 @@ final class ReplicatorPaddleState extends PaddleState {
 	
 	public NormalPaddleState convertToNormal() {
 		return new NormalPaddleState(center, size);
+	}
+	
+	public ballPaddleHitResults hitBall(Ball ball, int paddleDir) {
+		int reps = 0;
+		PaddleState newState = this;
+		Vector normVecPaddle = ball.rectangleOf().overlap(this.rectangleOf());
+		if (normVecPaddle != null &&
+			normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
+			ball.bounce(normVecPaddle);
+			ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
+			newState = this.decreaseLifetime();
+			reps=this.getLifetime();
+			}
+		return new ballPaddleHitResults(ball, newState, reps);
+	}
+	
+	public ReplicatorPaddleState powerup() {
+		this.resetLifetime();
+		return this;
 	}
 }

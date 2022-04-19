@@ -11,6 +11,7 @@ public abstract class BlockState {
 	public abstract Point getBottomRight();
 	public abstract Rect rectangleOf();
 	public abstract Color getColor();
+	public abstract ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle);
 }
 
 /**
@@ -68,6 +69,21 @@ final class NormalBlockState extends BlockState {
 	public Color getColor() {
 		return Color.blue;
 	}
+	
+	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
+		Rect blockRect = block.rectangleOf();
+		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
+		boolean destroyed = false;
+		if (normVecBlock != null && 
+			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
+			
+			destroyed = true;
+			
+			// Make ball bounce
+			ball.hitBlock(blockRect, destroyed);
+		}
+		return new ballBlockHitResults(block, ball, paddle, destroyed);
+	}
 }
 
 final class SturdyBlockState extends BlockState {
@@ -110,6 +126,27 @@ final class SturdyBlockState extends BlockState {
 		}
 		return Color.blue;
 	}
+	
+	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
+		Rect blockRect = block.rectangleOf();
+		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
+		boolean destroyed = false;
+		if (normVecBlock != null && 
+			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
+			
+			destroyed = true;
+			
+			// Block is always destroyed unless block is a sturdy one with a lifetime bigger than 1.
+			if (((SturdyBlockState) block).getLifetime() > 1) {
+				destroyed=false;
+				block = ((SturdyBlockState) block).decreaseLifetime();
+			}
+			
+			// Make ball bounce when required 
+			ball.hitBlock(blockRect, destroyed);
+		}
+		return new ballBlockHitResults(block, ball, paddle, destroyed);
+	}
 }
 	
 final class PowerupBallBlockState extends BlockState {
@@ -134,6 +171,24 @@ final class PowerupBallBlockState extends BlockState {
 	public Color getColor() {
 		return Color.orange;
 	}
+	
+	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
+		Rect blockRect = block.rectangleOf();
+		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
+		boolean destroyed = false;
+		if (normVecBlock != null && 
+			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
+			
+			destroyed = true;
+						
+			// Make ball bounce 
+			ball.hitBlock(blockRect, destroyed);
+			
+			// Execute block effects
+			ball = ball.powerup();
+		}
+		return new ballBlockHitResults(block, ball, paddle, destroyed);
+	} 
 }
 
 final class ReplicatorBlockState extends BlockState {
@@ -157,5 +212,22 @@ final class ReplicatorBlockState extends BlockState {
 	
 	public Color getColor() {
 		return Color.cyan;
+	}
+	
+	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
+		Rect blockRect = block.rectangleOf();
+		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
+		boolean destroyed = false;
+		if (normVecBlock != null && 
+			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
+			
+			// Make ball bounce
+			destroyed = true;
+			ball.hitBlock(blockRect, destroyed);
+			
+			// Execute block effects
+			paddle = paddle.powerup();
+		}
+		return new ballBlockHitResults(block, ball, paddle, destroyed);
 	}
 }

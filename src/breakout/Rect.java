@@ -54,7 +54,7 @@ public class Rect {
 	 * @pre | other != null
 	 * @post | result == null || result.getSquareLength() == 1
 	 */
-	public Vector collide(Rect other) {
+	public Vector overlap(Rect other) {
 		int thisLeftX = this.TL.getX();
 		int thisRightX = this.BR.getX();
 		int thisCenterX = this.TL.getX() + (this.BR.getX() - this.TL.getX())/2;
