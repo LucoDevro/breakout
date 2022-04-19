@@ -7,8 +7,8 @@ public abstract class Ball {
 	protected int diameter;
 	protected Vector velocity;
 	
-	protected static Vector[] replicateBallsSpeedDiff = {new Vector(2,-2), new Vector(-2,2), new Vector(2,2)};
-	protected static int LIFETIME = 10000;
+	protected static final Vector[] replicateBallsSpeedDiff = {new Vector(2,-2), new Vector(-2,2), new Vector(2,2)};
+	protected static final int LIFETIME = 10000;
 	
 	public abstract Point getCenter();
 	public abstract int getDiameter();

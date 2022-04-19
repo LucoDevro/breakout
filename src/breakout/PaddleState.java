@@ -7,7 +7,7 @@ public abstract class PaddleState {
 	protected Point center;
 	protected Vector size;
 	
-	protected static int LIFETIME = 3;
+	protected static final int LIFETIME = 3;
 	
 	public abstract Point getCenter();
 	public abstract Vector getSize();

@@ -32,7 +32,7 @@ public class BreakoutState {
 	private final Point bottomRight;
 	private PaddleState paddle;
 	
-	public static int MAX_ELAPSED_TIME = 50;
+	public static final int MAX_ELAPSED_TIME = 50;
 
 	// Constructor
 	/**
