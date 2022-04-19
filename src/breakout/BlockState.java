@@ -77,6 +77,7 @@ final class NormalBlockState extends BlockState {
 		if (normVecBlock != null && 
 			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 			
+			// Normal blocks are always destroyed when hit
 			destroyed = true;
 			
 			// Make ball bounce
@@ -136,7 +137,7 @@ final class SturdyBlockState extends BlockState {
 			
 			destroyed = true;
 			
-			// Block is always destroyed unless block is a sturdy one with a lifetime bigger than 1.
+			// Sturdy blocks are destroyed when hit only if its lifetime is 1.
 			if (((SturdyBlockState) block).getLifetime() > 1) {
 				destroyed=false;
 				block = ((SturdyBlockState) block).decreaseLifetime();
@@ -179,6 +180,7 @@ final class PowerupBallBlockState extends BlockState {
 		if (normVecBlock != null && 
 			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 			
+			// Powerup blocks are always destroyed when hit
 			destroyed = true;
 						
 			// Make ball bounce 
@@ -221,8 +223,10 @@ final class ReplicatorBlockState extends BlockState {
 		if (normVecBlock != null && 
 			normVecBlock.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 			
-			// Make ball bounce
+			// Replicator blocks are always destroyed when hit.
 			destroyed = true;
+			
+			// Make ball bounce
 			ball.hitBlock(blockRect, destroyed);
 			
 			// Execute block effects

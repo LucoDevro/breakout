@@ -188,7 +188,7 @@ public class BreakoutState {
 				continue;
 			}
 			
-			// Remove a block if the ball touches it at any side and bounce the ball
+			// Remove a block if a ball touches it at any side and execute the possible effects of that block
 			for (int j=0; j<blocks.length; j++) {
 				BlockState block=blocks[j];
 				ballBlockHitResults blockBallHit = block.hitBlock(block, ball, paddle);
