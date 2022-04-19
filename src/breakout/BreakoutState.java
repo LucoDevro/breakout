@@ -5,6 +5,8 @@ import java.util.stream.Stream;
 /**
  * Each instance of this class represents a game state of the breakout game.
  * 
+ * @invar Each ball is situated inside the game field.
+ * 	| Stream.of(getBalls()).allMatch(e -> e.rectangleOf().getBottomRight().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.rectangleOf().getTopLeft()))
  * @invar Each block is situated inside the game field.
  * 	| Stream.of(getBlocks()).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
  * @invar The paddle is situated inside the game field.
@@ -19,6 +21,7 @@ public class BreakoutState {
 	
 	// Fields
 	/**
+	 * @invar | Stream.of(balls).allMatch(e -> e.rectangleOf().getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.rectangleOf().getTopLeft()))
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
 	 * @invar | paddle.getCenter().plus(paddle.getSize()).isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(paddle.getCenter().minus(paddle.getSize()))
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().getY() < paddle.getCenter().getY() - paddle.getSize().getY())
@@ -37,6 +40,8 @@ public class BreakoutState {
 	 * the paddle and the lower right corner point of the game field.
 	 * @creates | result
 	 * @throws IllegalArgumentException if null pointers or a null object are supplied.
+	 * 	| balls == null || Stream.of(balls).anyMatch(e -> e == null)
+	 * @throws IllegalArgumentException if null pointers or a null object are supplied.
 	 * 	| blocks == null || Stream.of(blocks).anyMatch(e -> e == null)
 	 * @throws IllegalArgumentException if no paddle is supplied.
 	 * 	| paddle == null
@@ -47,6 +52,9 @@ public class BreakoutState {
 	 * @post | getPaddle().equals(paddle)
 	 */
 	public BreakoutState(Ball[] balls, BlockState[] blocks, Point bottomRight, PaddleState paddle) {
+		if (balls == null || Stream.of(balls).anyMatch(e -> e == null)) {
+			throw new IllegalArgumentException("You have supplied an invalid ball!");
+		}
 		if (blocks == null || Stream.of(blocks).anyMatch(e -> e == null)) {
 			throw new IllegalArgumentException("You have supplied an invalid block!");
 		}
