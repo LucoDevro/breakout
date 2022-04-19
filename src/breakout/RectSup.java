@@ -10,7 +10,7 @@ import java.util.Objects;
  * @invar | getBottomRight() != null
  * @invar | getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
-public class RectSup {
+public class Rect {
 
 	/**
 	 * @invar | topLeft != null
@@ -35,7 +35,7 @@ public class RectSup {
 	 * @post | getTopLeft().equals(topLeft)
 	 * @post | getBottomRight().equals(bottomRight)
 	 */
-	public RectSup(Point topLeft, Point bottomRight) {
+	public Rect(Point topLeft, Point bottomRight) {
 		this.topLeft = topLeft;
 		this.bottomRight = bottomRight;
 	}
@@ -60,16 +60,16 @@ public class RectSup {
 		return getTopLeft().isUpAndLeftFrom(loc) && loc.isUpAndLeftFrom(getBottomRight());
 	}
 
-	/**
-	 * Return whether this rectangle contains a given circle.
-	 * 
-	 * @post | result == (getTopLeft().plus(new Vector(loc.getDiameter(),loc.getDiameter())).isUpAndLeftFrom(getBottomRight()) &&
-	 * 		 |				minusMargin(loc.getRadius()).contains(loc.getCenter()))
-	 */
-	public boolean contains(Circle loc) {
-		return getTopLeft().plus(new Vector(loc.getDiameter(),loc.getDiameter())).isUpAndLeftFrom(getBottomRight()) &&
-				minusMargin(loc.getRadius()).contains(loc.getCenter());
-	}
+	// /**
+	//  * Return whether this rectangle contains a given circle.
+	//  * 
+	//  * @post | result == (getTopLeft().plus(new Vector(loc.getDiameter(),loc.getDiameter())).isUpAndLeftFrom(getBottomRight()) &&
+	//  * 		 |				minusMargin(loc.getRadius()).contains(loc.getCenter()))
+	//  */
+	// public boolean contains(Circle loc) {
+	// 	return getTopLeft().plus(new Vector(loc.getDiameter(),loc.getDiameter())).isUpAndLeftFrom(getBottomRight()) &&
+	// 			minusMargin(loc.getRadius()).contains(loc.getCenter());
+	// }
 
 	/**
 	 * Return whether this rectangle contains a given other rectangle.
@@ -77,27 +77,27 @@ public class RectSup {
 	 * @post | result == (getTopLeft().isUpAndLeftFrom(other.getTopLeft()) && 
 	 *       |            other.getBottomRight().isUpAndLeftFrom(getBottomRight()))
 	 */
-	public boolean contains(RectSup other) {
+	public boolean contains(Rect other) {
 		return getTopLeft().isUpAndLeftFrom(other.getTopLeft()) && 
 				other.getBottomRight().isUpAndLeftFrom(getBottomRight());
 	}
 
-	/**
-	 * Check whether this rectangle intersects with the given ball and if so, return the direction from the ball to the rectangle.
-	 * This direction may be an approximation for simplicity.
-	 * 
-	 * @pre | ball != null
-	 * @post | result == null || (result.getSquareLength() == 1 && this.contains(ball.getOutermostPoint(result)))
-	 */
-	public Vector collideWith(Circle ball) {
-		for (Vector coldir : COLLISSION_DIRS) {
-			Point c = ball.getOutermostPoint(coldir);
-			if(contains(c)) {
-				return coldir;
-			}
-		}
-		return null;
-	}
+	// /**
+	//  * Check whether this rectangle intersects with the given ball and if so, return the direction from the ball to the rectangle.
+	//  * This direction may be an approximation for simplicity.
+	//  * 
+	//  * @pre | ball != null
+	//  * @post | result == null || (result.getSquareLength() == 1 && this.contains(ball.getOutermostPoint(result)))
+	//  */
+	// public Vector collideWith(Circle ball) {
+	// 	for (Vector coldir : COLLISSION_DIRS) {
+	// 		Point c = ball.getOutermostPoint(coldir);
+	// 		if(contains(c)) {
+	// 			return coldir;
+	// 		}
+	// 	}
+	// 	return null;
+	// }
 
 	/**
 	 * Return the rectangle obtained by subtracting an inner margin from all sides of this rectangle.
@@ -107,9 +107,9 @@ public class RectSup {
 	 * @post | result.getTopLeft().equals(getTopLeft().plus(new Vector(dx,dy)))
 	 * @post | result.getBottomRight().equals(getBottomRight().minus(new Vector(dx,dy)))
 	 */
-	public RectSup minusMargin(int dx, int dy) {
+	public Rect minusMargin(int dx, int dy) {
 		Vector dv = new Vector(dx, dy);
-		return new RectSup( topLeft.plus(dv),
+		return new Rect( topLeft.plus(dv),
 						 bottomRight.minus(dv));
 	}
 	
@@ -121,9 +121,9 @@ public class RectSup {
 	 * @post | result.getTopLeft().equals(getTopLeft().plus(new Vector(d,d)))
 	 * @post | result.getBottomRight().equals(getBottomRight().minus(new Vector(d,d)))
 	 */
-	public RectSup minusMargin(int d) {
+	public Rect minusMargin(int d) {
 		Vector dv = new Vector(d,d);
-		return new RectSup( topLeft.plus(dv),
+		return new Rect( topLeft.plus(dv),
 						 bottomRight.minus(dv));
 	}
 
@@ -171,20 +171,20 @@ public class RectSup {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RectSup other = (RectSup) obj;
+		Rect other = (Rect) obj;
 		return Objects.equals(bottomRight, other.bottomRight) && Objects.equals(topLeft, other.topLeft);
 	}
 
-	/**
-	 * Move the argument circle by the least amount so that it falls entirely within this rect.
-	 *
-	 * @pre | c.getDiameter() < getWidth()
-	 * @post | contains(result)
-	 * @post | result.getCenter().equals(this.minusMargin(c.getRadius()).constrain(c.getCenter()))
-	 */
-	public Circle constrain(Circle c) {
-		RectSup r = this.minusMargin(c.getRadius());
-		Point nc = r.constrain(c.getCenter());
-		return new Circle(nc,c.getDiameter());
-	}
+	// /**
+	//  * Move the argument circle by the least amount so that it falls entirely within this rect.
+	//  *
+	//  * @pre | c.getDiameter() < getWidth()
+	//  * @post | contains(result)
+	//  * @post | result.getCenter().equals(this.minusMargin(c.getRadius()).constrain(c.getCenter()))
+	//  */
+	// public Circle constrain(Circle c) {
+	// 	Rect r = this.minusMargin(c.getRadius());
+	// 	Point nc = r.constrain(c.getCenter());
+	// 	return new Circle(nc,c.getDiameter());
+	// }
 }
