@@ -31,6 +31,22 @@ public class Rect {
 		this.TL=TL;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Rect other = (Rect) obj;
+		if (!(TL.equals(other.getTopLeft())))
+			return false;
+		if (!(BR.equals(other.getBottomRight())))
+			return false;
+		return true;
+	}
+	
 	// Getters
 	/**
 	 * Returns the top left Point object that defines this Rectangle object.

@@ -5,8 +5,6 @@ import java.util.stream.Stream;
 /**
  * Each instance of this class represents a game state of the breakout game.
  * 
- * @invar Each ball is situated inside the game field.
- * 	| Stream.of(getBalls()).allMatch(e -> e.rectangleOf().getBottomRight().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.rectangleOf().getTopLeft()))
  * @invar Each block is situated inside the game field.
  * 	| Stream.of(getBlocks()).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
  * @invar The paddle is situated inside the game field.
@@ -21,7 +19,6 @@ public class BreakoutState {
 	
 	// Fields
 	/**
-	 * @invar | Stream.of(balls).allMatch(e -> e.rectangleOf().getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.rectangleOf().getTopLeft()))
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
 	 * @invar | paddle.getCenter().plus(paddle.getSize()).isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(paddle.getCenter().minus(paddle.getSize()))
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().getY() < paddle.getCenter().getY() - paddle.getSize().getY())
@@ -157,10 +154,8 @@ public class BreakoutState {
 	 * @mutates | this
 	 * @pre paddleDir should be 0, 1 or -1.
 	 * 	| paddleDir == 0 || paddleDir == 1 || paddleDir == -1
-	 * @post The paddle of the new object state should be identical to the one of the old object state.
-	 * 	| getPaddle().equals(old(getPaddle()))
-	 * @post All blocks of the new object state should be present in the old object state.
-	 * 	| Stream.of(getBlocks()).allMatch(e -> Stream.of(old(getBlocks())).anyMatch(f -> f.equals(e)))
+	 * @post The new paddle's position should be identical to the old one's.
+	 * 	| getPaddle().rectangleOf().equals(old(getPaddle().rectangleOf()))
 	 */
 	public void tick(int paddleDir, int elapsedTime) {
 		for (int i=0; i<balls.length; i++) {
@@ -179,24 +174,22 @@ public class BreakoutState {
 			int ballTopY = ballRect.getTopLeft().getY();
 			int ballBottomY = ballRect.getBottomRight().getY();
 			
-			// Bounce ball at the left, at the right and at the top of the game field
+			// Bounce ball at the left, at the right and at the top of the game field, remove it at the bottom
 			if (ballLeftX <= 0) {
 				ball.bounce(Vector.LEFT);
 			}
-			if (ballRightX >= bottomRight.getX()) {
+			else if (ballRightX >= bottomRight.getX()) {
 				ball.bounce(Vector.RIGHT);
 			}
 			if (ballTopY <= 0) {
 				ball.bounce(Vector.UP);
 			}
-			
-			// Remove ball at the bottom of the game field
-			if (ballBottomY >= bottomRight.getY()) {
+			else if (ballBottomY >= bottomRight.getY()) {
 				removeBall(ball);
 				continue;
 			}
 			
-			// Remove a block if a ball touches it at any side and execute the possible effects of that block
+			// Detecting and executing the possible effects of a ball-block hit
 			for (int j=0; j<blocks.length; j++) {
 				BlockState block=blocks[j];
 				ballBlockHitResults blockBallHit = block.hitBlock(block, ball, paddle);
@@ -242,7 +235,7 @@ public class BreakoutState {
 	 * @inspects | this
 	 * @mutates | this
 	 * @post The paddle has moved maximum ten units to the right.
-	 * 	| getPaddle().getCenter().getX() <= old(getPaddle().getCenter().getX()) + 10 &&
+	 * 	| getPaddle().getCenter().getX() <= old(getPaddle().getCenter().getX()) + 10*elapsedTime &&
 	 * 	| getPaddle().getCenter().getY() == old(getPaddle().getCenter().getY())
 	 * @post The size of the paddle remained constant
 	 * 	| getPaddle().getSize().equals(old(getPaddle().getSize()))	
@@ -252,7 +245,7 @@ public class BreakoutState {
 		if (newCenter.plus(paddle.getSize()).getX() > bottomRight.getX()) {
 			newCenter=paddle.getCenter();
 		}
-		paddle.setCenter(newCenter);
+		paddle = paddle.setCenter(newCenter);
 	}
 
 	/**
@@ -261,7 +254,7 @@ public class BreakoutState {
 	 * @inspects | this
 	 * @mutates | this
 	 * @post The paddle has moved maximum ten units to the left.
-	 * 	| getPaddle().getCenter().getX() >= old(getPaddle().getCenter().getX()) - 10 &&
+	 * 	| getPaddle().getCenter().getX() >= old(getPaddle().getCenter().getX()) - 10*elapsedTime &&
 	 * 	| getPaddle().getCenter().getY() == old(getPaddle().getCenter().getY())
 	 * @post The size of the paddle remained constant
 	 * 	| getPaddle().getSize().equals(old(getPaddle().getSize()))	
@@ -271,7 +264,7 @@ public class BreakoutState {
 		if (newCenter.minus(paddle.getSize()).getX() < 0) {
 			newCenter=paddle.getCenter();
 		}
-		paddle.setCenter(newCenter);
+		paddle = paddle.setCenter(newCenter);
 	}
 	
 	/**
