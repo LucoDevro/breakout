@@ -69,7 +69,6 @@ final class NormalPaddleState extends PaddleState {
 	/**
 	 * Sets the center Point object contained within this NormalPaddleState object to the one supplied.
 	 * @creates | result
-	 * @inspects  | this
 	 * @pre | center != null
 	 * @post | result.getCenter().equals(center)
 	 */
@@ -81,7 +80,6 @@ final class NormalPaddleState extends PaddleState {
 	 * Returns a Rectangle object representing the rectangle surrounding the paddle represented by this NormalPaddleState object.
 	 * 
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
 	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
 	 */
@@ -99,7 +97,6 @@ final class NormalPaddleState extends PaddleState {
 	/**
 	 * Returns a copy of this NormalPaddleState object converted to a ReplicatorPaddleState object with the default lifetime.
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
 	 * @post | result.getLifetime() == LIFETIME
@@ -109,13 +106,16 @@ final class NormalPaddleState extends PaddleState {
 	}
 	
 	/**
-	 * Returns a ballPaddleHitResults object containing the ball and paddle states and the required number of replicates,
+	 * Returns a ballPaddleHitResults object containing the ball and paddle states and the required number of replicates to be made,
 	 * resulting from a possible ball-paddle hit. A normal paddle cannot request replicates.
 	 * @creates | result
 	 * @inspects | ball
 	 * @pre | ball != null
 	 * @pre | paddleDir == 0 || paddleDir == 1 || paddleDir == -1
 	 * @post | result.reps == 0
+	 * @post | result.reps >= 0 && result.reps <= 3
+	 * @post | result.ball instanceof Ball
+	 * @post | result.paddle instanceof NormalPaddleState
 	 */
 	public ballPaddleHitResults hitBall(Ball ball, int paddleDir) {
 		Vector normVecPaddle = ball.rectangleOf().overlap(this.rectangleOf());
@@ -131,7 +131,6 @@ final class NormalPaddleState extends PaddleState {
 	 * Returns a copy of this NormalPaddleState object representing a normal paddle that has been powered up
 	 * to a replicator paddle state with default lifetime.
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
 	 * @post | result.getLifetime() == LIFETIME
@@ -191,7 +190,6 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * Returns a Rectangle object representing the rectangle surrounding the paddle represented by this ReplicatorPaddleState object.
 	 * 
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
 	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
 	 */
@@ -202,7 +200,6 @@ final class ReplicatorPaddleState extends PaddleState {
 	/**
 	 * Sets the center Point object contained within this ReplicatorPaddleState object to the one supplied.
 	 * @creates | result
-	 * @inspects | this
 	 * @pre | center != null
 	 * @post | result.getCenter().equals(center)
 	 */
@@ -211,7 +208,7 @@ final class ReplicatorPaddleState extends PaddleState {
 	}
 	
 	/**
-	 * Returns the remaining lifetime of this ReplicatorPaddleState object.
+	 * Returns the remaining lifetime in number of hits of this ReplicatorPaddleState object.
 	 */
 	public int getLifetime() {
 		return lifetime;
@@ -221,7 +218,6 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * Returns a copy of this ReplicatorPaddleState with the lifetime decreased by one, or converts it to a 
 	 * NormalPaddleState in case the lifetime decreased to zero.
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result instanceof NormalPaddleState || ((ReplicatorPaddleState) result).getLifetime() == old(getLifetime())-1
 	 */
 	public PaddleState decreaseLifetime() {
@@ -252,7 +248,6 @@ final class ReplicatorPaddleState extends PaddleState {
 	/**
 	 * Returns a copy of this ReplicatorPaddleState object that was converted to a NormalPaddleState object
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
 	 */
@@ -261,13 +256,14 @@ final class ReplicatorPaddleState extends PaddleState {
 	}
 	
 	/**
-	 * Returns a ballPaddleHitResults object containing the ball and paddle states and the required number of replicates,
+	 * Returns a ballPaddleHitResults object containing the ball and paddle states and the required number of replicates to be made,
 	 * resulting from a possible ball-paddle hit. A replicator paddle requests 1, 2 or 3 replicates, or 0 in case there was no hit.
 	 * @creates | result
-	 * @inspects | ball
 	 * @pre | ball != null
 	 * @pre | paddleDir == 0 || paddleDir == 1 || paddleDir == -1
 	 * @post | result.reps >= 0 && result.reps <= 3
+	 * @post | result.ball instanceof Ball
+	 * @post | result.paddle instanceof PaddleState
 	 */
 	public ballPaddleHitResults hitBall(Ball ball, int paddleDir) {
 		int reps = 0;
@@ -287,7 +283,6 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * Returns a copy of this ReplicatorPaddleState object representing a replicator paddle that has been powered up.
 	 * This basically resets its lifetime.
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
 	 * @post | result.getLifetime() == LIFETIME

@@ -17,7 +17,6 @@ import java.util.stream.Stream;
  */
 public class BreakoutState {
 	
-	// Fields
 	/**
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
 	 * @invar | paddle.getCenter().plus(paddle.getSize()).isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(paddle.getCenter().minus(paddle.getSize()))
@@ -31,7 +30,6 @@ public class BreakoutState {
 	
 	public static final int MAX_ELAPSED_TIME = 50;
 
-	// Constructor
 	/**
 	 * Returns an object representing a game state of the breakout game defined by the balls, the blocks,
 	 * the paddle and the lower right corner point of the game field.
@@ -67,7 +65,6 @@ public class BreakoutState {
 		this.paddle=paddle;
 	}
 	
-	// Getters
 	/**
 	 * Returns the array of BallState objects contained within this BreakoutState object.
 	 * @creates | result
@@ -103,18 +100,6 @@ public class BreakoutState {
 		return bottomRight;
 	}
 	
-	// Auxiliary private methods
-	/**
-	 * Removes a supplied BlockState object from the blocks array.
-	 * @inspects | this, block
-	 * @mutates | this
-	 * @pre A block cannot be null.
-	 * 	| block != null
-	 * @post The BlockState object that was removed, is not present in the resulting array.
-	 * 	| Stream.of(blocks).allMatch(e -> !(e.equals(block)))
-	 * @post  All BlockState objects in the resulting array were present in the supplied array.
-	 * 	| Stream.of(blocks).allMatch(e -> Stream.of(old(blocks)).anyMatch(f -> f.equals(e)))
-	 */
 	private void removeBlock(BlockState block) {
 		BlockState[] blocksLeft = new BlockState[blocks.length-1];
 		int found=0;
@@ -128,11 +113,6 @@ public class BreakoutState {
 		blocks=blocksLeft;
 	}
 	
-	/**
-	 * Removes a supplied BallState object from the balls array.
-	 * @inspects | this, ball
-	 * @mutates | this
-	 */
 	private void removeBall(Ball ball) {
 		Ball[] ballsLeft = new Ball[balls.length-1];
 		int found=0;
@@ -146,7 +126,21 @@ public class BreakoutState {
 		balls=ballsLeft;
 	}
 	
-	// Public methods
+	private void replicateBall(Ball ball, int reps) {
+		if (reps == 0) {
+			return;
+		}
+		Ball[] expanded = new Ball[balls.length+reps];
+		for (int i=0; i<balls.length; i++) {
+			expanded[i] = balls[i];
+		}
+		Ball[] replicated = ball.replicate(reps);
+		for (int j=0; j<reps; j++) {
+			expanded[balls.length+j] = replicated[j];
+		}
+		balls=expanded;
+	}
+	
 	/**
 	 * Performs one movement iteration of the game based on the current position and applicable
 	 * velocities of the balls, the blocks and the paddle. Removes blocks and balls if necessary.
@@ -154,6 +148,8 @@ public class BreakoutState {
 	 * @mutates | this
 	 * @pre paddleDir should be 0, 1 or -1.
 	 * 	| paddleDir == 0 || paddleDir == 1 || paddleDir == -1
+	 * @pre elapsedTime should be larger than 0 and smaller than or equal to MAX_ELAPSED_TIME.
+	 * 	| elapsedTime > 0 && elapsedTime <= MAX_ELAPSED_TIME
 	 * @post The new paddle's position should be identical to the old one's.
 	 * 	| getPaddle().rectangleOf().equals(old(getPaddle().rectangleOf()))
 	 */
@@ -214,21 +210,6 @@ public class BreakoutState {
 		}
 	}
 	
-	private void replicateBall(Ball ball, int reps) {
-		if (reps == 0) {
-			return;
-		}
-		Ball[] expanded = new Ball[balls.length+reps];
-		for (int i=0; i<balls.length; i++) {
-			expanded[i] = balls[i];
-		}
-		Ball[] replicated = ball.replicate(reps);
-		for (int j=0; j<reps; j++) {
-			expanded[balls.length+j] = replicated[j];
-		}
-		balls=expanded;
-	}
-	
 	/**
 	 * Alters paddle such that it has moved maximum 10 units to the right in comparison with the old paddle state,
 	 * while keeping it inside the game field.
@@ -281,31 +262,5 @@ public class BreakoutState {
 	 */
 	public boolean isDead() {
 		return (balls.length == 0);
-	}
-}
-
-class ballPaddleHitResults {
-	final Ball ball;
-	final PaddleState paddle;
-	final int reps;
-	
-	ballPaddleHitResults(Ball ball, PaddleState paddle, int reps) {
-		this.ball=ball;
-		this.paddle=paddle;
-		this.reps=reps;
-	}
-}
-
-class ballBlockHitResults {
-	final BlockState block;
-	final Ball ball;
-	final PaddleState paddle;
-	final boolean destroyed;
-	
-	ballBlockHitResults(BlockState block, Ball ball, PaddleState paddle, boolean destroyed) {
-		this.ball=ball;
-		this.block=block;
-		this.paddle=paddle;
-		this.destroyed=destroyed;
 	}
 }

@@ -269,7 +269,7 @@ class SuperBall extends Ball {
 	}
 	
 	/**
-	 * Returns the remaining lifetime of this SuperBall object.
+	 * Returns the remaining lifetime in milliseconds of this SuperBall object.
 	 */
 	public long getLifetime() {
 		return lifetime;
@@ -297,12 +297,12 @@ class SuperBall extends Ball {
 	}
 	
 	/**
-	 * Sets the remaining lifetime of this SuperBall object to the supplied value.
+	 * Sets the remaining lifetime in milliseconds of this SuperBall object to the supplied value.
 	 * @mutates | this
 	 * @pre | lifetime > 0 && lifetime <= LIFETIME
 	 * @post | getLifetime() == lifetime
 	 */
-	public void setLifetime(int lifetime) {
+	public void setLifetime(long lifetime) {
 		this.lifetime = lifetime;
 	}
 	
