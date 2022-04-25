@@ -7,10 +7,16 @@ import java.awt.Color;
  * 
  * @immutable
  * 
+ * @invar | getTopLeft() != null
+ * @invar | getBottomRight() != null
  * @invar This object's upper left point is situated up and left from its lower right point.
  * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 public abstract class BlockState {
+	/**
+	 * @invar | TL != null
+	 * @invar | BR != null 
+	 */
 	protected Point TL;
 	protected Point BR;
 	

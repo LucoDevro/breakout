@@ -9,9 +9,15 @@ import java.awt.Color;
  * 
  * @invar The size of a paddle is given by a vector with both x and y being positive
  * 	| getSize().getX() >= 0 && getSize().getY() >= 0
+ * @invar | getCenter() != null
+ * @invar | getSize() != null
  */
 
 public abstract class PaddleState {
+	/**
+	 * @invar | center != null
+	 * @invar | size != null
+	 */
 	protected Point center;
 	protected Vector size;
 	
@@ -20,7 +26,7 @@ public abstract class PaddleState {
 	public abstract Point getCenter();
 	public abstract Vector getSize();
 	public abstract Rect rectangleOf();
-	public abstract PaddleState setCenter(Point center);
+	public abstract PaddleState changeCenter(Point center);
 	public abstract Color getColor();
 	public abstract ballPaddleHitResults hitBall(Ball ball, int paddleDir);
 	public abstract ReplicatorPaddleState powerup();
@@ -72,7 +78,7 @@ final class NormalPaddleState extends PaddleState {
 	 * @pre | center != null
 	 * @post | result.getCenter().equals(center)
 	 */
-	public NormalPaddleState setCenter(Point center) {
+	public NormalPaddleState changeCenter(Point center) {
 		return new NormalPaddleState(center, size);
 	}
 	
@@ -122,7 +128,7 @@ final class NormalPaddleState extends PaddleState {
 		if (normVecPaddle != null &&
 			normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 			ball.bounce(normVecPaddle);
-			ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
+			ball.changeVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
 		}
 		return new ballPaddleHitResults(ball, this, 0);
 	}
@@ -203,7 +209,7 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * @pre | center != null
 	 * @post | result.getCenter().equals(center)
 	 */
-	public ReplicatorPaddleState setCenter(Point center) {
+	public ReplicatorPaddleState changeCenter(Point center) {
 		return new ReplicatorPaddleState(center, size, lifetime);
 	}
 	
@@ -272,7 +278,7 @@ final class ReplicatorPaddleState extends PaddleState {
 		if (normVecPaddle != null &&
 			normVecPaddle.product(ball.getVelocity()) > 0) { // Bounce only when the ball is at the outside
 			ball.bounce(normVecPaddle);
-			ball.setVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
+			ball.changeVelocity(ball.getVelocity().plus(Vector.RIGHT.scaled(2*paddleDir)));
 			newState = this.decreaseLifetime();
 			reps=this.getLifetime();
 			}

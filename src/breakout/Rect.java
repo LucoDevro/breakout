@@ -7,12 +7,16 @@ package breakout;
  * 
  * @invar The top left point should be situated up and left from the bottom right point.
  * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
+ * @invar | getTopLeft() != null
+ * @invar | getBottomRight() != null
  */
 public class Rect {
 	
 	// Fields
 	/**
 	 * @invar | TL.isUpAndLeftFrom(BR)
+	 * @invar | TL != null
+	 * @invar | BR != null
 	 */
 	private final Point TL;
 	private final Point BR;

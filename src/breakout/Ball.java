@@ -10,12 +10,16 @@ import java.awt.Color;
  * 	| getDiameter() >= 0
  * @invar A ball's velocity is not equal to the zero vector.
  * 	| getVelocity().equals(new Vector(0,0))
+ * @invar | getCenter() != null
+ * @invar | getVelocity() != null
  */
 
 public abstract class Ball {
 	/**
 	 * @invar | diameter >= 0
 	 * @invar | velocity.equals(new Vector(0,0))
+	 * @invar | center != null
+	 * @invar | velocity != null
 	 */
 	protected Point center;
 	protected int diameter;
@@ -27,8 +31,8 @@ public abstract class Ball {
 	public abstract Point getCenter();
 	public abstract int getDiameter();
 	public abstract Vector getVelocity();
-	public abstract void setCenter(Point center);
-	public abstract void setVelocity(Vector velocity);
+	public abstract void changeCenter(Point center);
+	public abstract void changeVelocity(Vector velocity);
 	public abstract void hitBlock(Rect rect, boolean destroyed);
 	public abstract void roll(int elapsedTime);
 	public abstract void bounce(Vector direction);
@@ -90,7 +94,7 @@ class NormalBall extends Ball {
 	 * @pre | center != null
 	 * @post | getCenter().equals(center)
 	 */
-	public void setCenter(Point center) {
+	public void changeCenter(Point center) {
 		this.center=center;
 	}
 	
@@ -101,7 +105,7 @@ class NormalBall extends Ball {
 	 * @pre | !(velocity.equals(new Vector(0,0)))
 	 * @post | getVelocity().equals(velocity)
 	 */
-	public void setVelocity(Vector velocity) {
+	public void changeVelocity(Vector velocity) {
 		this.velocity=velocity;
 	}
 	
@@ -281,7 +285,7 @@ class SuperBall extends Ball {
 	 * @pre | center != null
 	 * @post | getCenter().equals(center)
 	 */
-	public void setCenter(Point center) {
+	public void changeCenter(Point center) {
 		this.center=center;
 	}
 	
@@ -292,7 +296,7 @@ class SuperBall extends Ball {
 	 * @pre | !(velocity.equals(new Vector(0,0)))
 	 * @post | getVelocity().equals(velocity)
 	 */
-	public void setVelocity(Vector velocity) {
+	public void changeVelocity(Vector velocity) {
 		this.velocity=velocity;
 	}
 	
@@ -302,7 +306,7 @@ class SuperBall extends Ball {
 	 * @pre | lifetime > 0 && lifetime <= LIFETIME
 	 * @post | getLifetime() == lifetime
 	 */
-	public void setLifetime(long lifetime) {
+	public void changeLifetime(long lifetime) {
 		this.lifetime = lifetime;
 	}
 	

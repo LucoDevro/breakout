@@ -5,26 +5,50 @@ import java.util.stream.Stream;
 /**
  * Each instance of this class represents a game state of the breakout game.
  * 
+ * @invar There are no null pointers for any ball.
+ * 	| getBalls() != null && Stream.of(getBalls()).allMatch(e -> e != null)
+ * @invar The center of each ball is situated inside the game field.
+ * 	| Stream.of(getBalls()).allMatch(e -> e.getCenter().isUpAndLeftFrom(getBottomRight()) &&
+ * 	|	Point.ORIGIN.isUpAndLeftFrom(e.getCenter()))
+ * @invar There are no null pointers for any block.
+ * 	| getBlocks() != null && Stream.of(getBlocks()).allMatch(e -> e != null)
  * @invar Each block is situated inside the game field.
- * 	| Stream.of(getBlocks()).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(getBottomRight()) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
+ * 	| Stream.of(getBlocks()).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(getBottomRight()) && 
+ * 	|	Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
+ * @invar There is no null pointer for the paddle.
+ * 	| getPaddle() != null
  * @invar The paddle is situated inside the game field.
- * 	| getPaddle().getCenter().plus(getPaddle().getSize()).isUpAndLeftFrom(getBottomRight()) &&
- * 	| Point.ORIGIN.isUpAndLeftFrom(getPaddle().getCenter().minus(getPaddle().getSize()))
+ * 	| getPaddle().rectangleOf().getBottomRight().isUpAndLeftFrom(getBottomRight()) &&
+ * 	| 	Point.ORIGIN.isUpAndLeftFrom(getPaddle().rectangleOf().getTopLeft())
  * @invar The paddle is situated below the blocks.
  *	| Stream.of(getBlocks()).allMatch(e -> e.getBottomRight().getY() < getPaddle().getCenter().getY() - getPaddle().getSize().getY())
+ * @invar The size of the game field is defined.
+ * 	| getBottomRight() != null
  * @invar The lower right corner of the game field is down and right from the origin of the game field.
  * 	| Point.ORIGIN.isUpAndLeftFrom(getBottomRight())
  */
 public class BreakoutState {
 	
 	/**
-	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
-	 * @invar | paddle.getCenter().plus(paddle.getSize()).isUpAndLeftFrom(bottomRight) && Point.ORIGIN.isUpAndLeftFrom(paddle.getCenter().minus(paddle.getSize()))
+	 * @invar | balls != null && Stream.of(balls).allMatch(e -> e != null)
+	 * @invar | Stream.of(balls).allMatch(e -> e.getCenter().isUpAndLeftFrom(bottomRight) && 
+	 * | Point.ORIGIN.isUpAndLeftFrom(e.getCenter()))
+	 * @invar | blocks != null && Stream.of(blocks).allMatch(e -> e != null)
+	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().isUpAndLeftFrom(bottomRight) &&
+	 * | Point.ORIGIN.isUpAndLeftFrom(e.getTopLeft()))
+	 * @invar | paddle != null
+	 * @invar | paddle.rectangleOf().getBottomRight().isUpAndLeftFrom(bottomRight) && 
+	 * | Point.ORIGIN.isUpAndLeftFrom(paddle.rectangleOf().getTopLeft())
 	 * @invar | Stream.of(blocks).allMatch(e -> e.getBottomRight().getY() < paddle.getCenter().getY() - paddle.getSize().getY())
+	 * @invar | bottomRight != null
 	 * @invar | Point.ORIGIN.isUpAndLeftFrom(bottomRight)
 	 */
+	
+	/** @representationObject */
 	private Ball[] balls;
+	/** @representationObject */
 	private BlockState[] blocks;
+	
 	private final Point bottomRight;
 	private PaddleState paddle;
 	
@@ -42,6 +66,8 @@ public class BreakoutState {
 	 * 	| paddle == null
 	 * @throws IllegalArgumentException if no lower right corner point is supplied.
 	 * 	| bottomRight == null
+	 * @throws IllegalArgumentException if the bottom-right of the game field is up and left from the top-left.
+	 * 	| bottomRight.isUpAndLeftFrom(Point.ORIGIN)
 	 * @post | Stream.of(getBlocks()).allMatch(e -> Stream.of(blocks).anyMatch(f -> e.equals(f)))
 	 * @post | getBottomRight().equals(bottomRight)
 	 * @post | getPaddle().equals(paddle)
@@ -57,6 +83,9 @@ public class BreakoutState {
 			throw new IllegalArgumentException("You have not supplied a valid paddle!");
 		}
 		if (bottomRight == null) {
+			throw new IllegalArgumentException("You have not supplied a valid game field size");
+		}
+		if (bottomRight.isUpAndLeftFrom(Point.ORIGIN)) {
 			throw new IllegalArgumentException("You have not supplied a valid game field size");
 		}
 		this.balls=balls.clone();
@@ -226,7 +255,7 @@ public class BreakoutState {
 		if (newCenter.plus(paddle.getSize()).getX() > bottomRight.getX()) {
 			newCenter=paddle.getCenter();
 		}
-		paddle = paddle.setCenter(newCenter);
+		paddle = paddle.changeCenter(newCenter);
 	}
 
 	/**
@@ -245,7 +274,7 @@ public class BreakoutState {
 		if (newCenter.minus(paddle.getSize()).getX() < 0) {
 			newCenter=paddle.getCenter();
 		}
-		paddle = paddle.setCenter(newCenter);
+		paddle = paddle.changeCenter(newCenter);
 	}
 	
 	/**
