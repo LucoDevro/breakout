@@ -26,7 +26,7 @@ public abstract class Ball {
 	protected Vector velocity;
 	
 	protected static final Vector[] replicateBallsSpeedDiff = {new Vector(2,-2), new Vector(-2,2), new Vector(2,2)};
-	protected static final int LIFETIME = 10000;
+	protected static final int MAX_LIFETIME = 10000;
 	
 	public abstract Point getCenter();
 	public abstract int getDiameter();
@@ -170,10 +170,10 @@ class NormalBall extends Ball {
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getDiameter() == old(getDiameter())
 	 * @post | result.getVelocity().equals(old(getVelocity()))
-	 * @post | result.getLifetime() == LIFETIME
+	 * @post | result.getLifetime() == MAX_LIFETIME
 	 */
 	public SuperBall convertToSuper() {
-		return new SuperBall(center, diameter, velocity, LIFETIME);
+		return new SuperBall(center, diameter, velocity, MAX_LIFETIME);
 	}
 	
 	/**
@@ -201,7 +201,7 @@ class NormalBall extends Ball {
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getDiameter() == old(getDiameter())
 	 * @post | result.getVelocity().equals(old(getVelocity()))
-	 * @post | result.getLifetime() == LIFETIME
+	 * @post | result.getLifetime() == MAX_LIFETIME
 	 */
 	public SuperBall powerup() {
 		return this.convertToSuper();
@@ -223,11 +223,11 @@ class NormalBall extends Ball {
  * @invar A ball's velocity is not equal to the zero vector.
  * 	| !(getVelocity().equals(new Vector(0,0)))
  * @invar A supercharged ball's lifetime is between 0 and the preset lifetime of 10000 ms.
- * 	| getLifetime() > 0 && getLifetime() <= LIFETIME
+ * 	| getLifetime() > 0 && getLifetime() <= MAX_LIFETIME
  */
 class SuperBall extends Ball {
 	/**
-	 * @invar | lifetime > 0 && lifetime <= LIFETIME
+	 * @invar | lifetime > 0 && lifetime <= MAX_LIFETIME
 	 */
 	private long lifetime;
 	
@@ -238,7 +238,7 @@ class SuperBall extends Ball {
 	 * @pre | center != null
 	 * @pre | diameter > 0
 	 * @pre | !(velocity.equals(new Vector(0,0)))
-	 * @pre | lifetime > 0 && lifetime <= LIFETIME
+	 * @pre | lifetime > 0 && lifetime <= MAX_LIFETIME
 	 * @post | getCenter().equals(center)
 	 * @post | getDiameter() == diameter
 	 * @post | getVelocity().equals(velocity)
@@ -303,7 +303,7 @@ class SuperBall extends Ball {
 	/**
 	 * Sets the remaining lifetime in milliseconds of this SuperBall object to the supplied value.
 	 * @mutates | this
-	 * @pre | lifetime > 0 && lifetime <= LIFETIME
+	 * @pre | lifetime > 0 && lifetime <= MAX_LIFETIME
 	 * @post | getLifetime() == lifetime
 	 */
 	public void changeLifetime(long lifetime) {
@@ -313,10 +313,10 @@ class SuperBall extends Ball {
 	/**
 	 * Resets the remaining lifetime of this SuperBall object to the default, LIFETIME.
 	 * @mutates | this
-	 * @post | getLifetime() == LIFETIME
+	 * @post | getLifetime() == MAX_LIFETIME
 	 */
 	public void resetLifetime() {
-		this.lifetime = LIFETIME;
+		this.lifetime = MAX_LIFETIME;
 	}
 	
 	/**

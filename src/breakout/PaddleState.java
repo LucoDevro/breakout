@@ -21,7 +21,7 @@ public abstract class PaddleState {
 	protected Point center;
 	protected Vector size;
 	
-	protected static final int LIFETIME = 3;
+	protected static final int MAX_REPLICATOR_LIFETIME = 3;
 	
 	public abstract Point getCenter();
 	public abstract Vector getSize();
@@ -105,10 +105,10 @@ final class NormalPaddleState extends PaddleState {
 	 * @creates | result
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
-	 * @post | result.getLifetime() == LIFETIME
+	 * @post | result.getLifetime() == MAX_REPLICATOR_LIFETIME
 	 */
 	public ReplicatorPaddleState convertToReplicator() {
-		return new ReplicatorPaddleState(center, size, LIFETIME);
+		return new ReplicatorPaddleState(center, size, MAX_REPLICATOR_LIFETIME);
 	}
 	
 	/**
@@ -139,7 +139,7 @@ final class NormalPaddleState extends PaddleState {
 	 * @creates | result
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
-	 * @post | result.getLifetime() == LIFETIME
+	 * @post | result.getLifetime() == MAX_REPLICATOR_LIFETIME
 	 */
 	public ReplicatorPaddleState powerup() {
 		return this.convertToReplicator();
@@ -238,10 +238,10 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * Creates a copy this ReplicatorPaddleState in which the lifetime was reset.
 	 * @creates | result
 	 * @inspects | this
-	 * @post | result.getLifetime() == LIFETIME
+	 * @post | result.getLifetime() == MAX_REPLICATOR_LIFETIME
 	 */
 	public ReplicatorPaddleState resetLifetime() {
-		return new ReplicatorPaddleState(center,size,LIFETIME);
+		return new ReplicatorPaddleState(center,size,MAX_REPLICATOR_LIFETIME);
 	}
 	
 	/**
@@ -291,7 +291,7 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * @creates | result
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
-	 * @post | result.getLifetime() == LIFETIME
+	 * @post | result.getLifetime() == MAX_REPLICATOR_LIFETIME
 	 */
 	public ReplicatorPaddleState powerup() {
 		return this.resetLifetime();

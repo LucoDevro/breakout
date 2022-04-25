@@ -20,6 +20,8 @@ public abstract class BlockState {
 	protected Point TL;
 	protected Point BR;
 	
+	protected static final int MAX_STURDY_LIFETIME = 3;
+	
 	public abstract Point getTopLeft();
 	public abstract Point getBottomRight();
 	public abstract Rect rectangleOf();
@@ -130,6 +132,7 @@ final class SturdyBlockState extends BlockState {
 	 * @pre | BR != null
 	 * @pre The upper left point mist be situated up and left from the lower right point
 	 * 	| TL.isUpAndLeftFrom(BR)
+	 * @pre | lifetime > 0 && lifetime <= MAX_STURDY_LIFETIME
 	 * @post | getTopLeft()==TL
 	 * @post | getBottomRight()==BR
 	 */
