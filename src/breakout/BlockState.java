@@ -26,7 +26,7 @@ public abstract class BlockState {
 	public abstract Point getBottomRight();
 	public abstract Rect rectangleOf();
 	public abstract Color getColor();
-	public abstract ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle);
+	public abstract ballBlockHitResults hitBy(Ball ball, PaddleState paddle);
 }
 
 /**
@@ -90,15 +90,14 @@ final class NormalBlockState extends BlockState {
 	 * and consequently should be removed from the breakout game.
 	 * @creates | result
 	 * @inspects | ball
-	 * @pre | block != null
 	 * @pre | ball != null
 	 * @pre | paddle != null
 	 * @post | result.ball instanceof Ball
 	 * @post | result.block instanceof NormalBlockState
 	 * @post | result.paddle instanceof PaddleState
 	 */
-	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
-		Rect blockRect = block.rectangleOf();
+	public ballBlockHitResults hitBy(Ball ball, PaddleState paddle) {
+		Rect blockRect = this.rectangleOf();
 		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
 		boolean destroyed = false;
 		if (normVecBlock != null && 
@@ -110,7 +109,7 @@ final class NormalBlockState extends BlockState {
 			// Make ball bounce
 			ball.hitBlock(blockRect, destroyed);
 		}
-		return new ballBlockHitResults(block, ball, paddle, destroyed);
+		return new ballBlockHitResults(this, ball, paddle, destroyed);
 	}
 }
 
@@ -205,15 +204,15 @@ final class SturdyBlockState extends BlockState {
 	 * and consequently should be removed from the breakout game.
 	 * @creates | result
 	 * @inspects | ball
-	 * @pre | block != null
 	 * @pre | ball != null
 	 * @pre | paddle != null
 	 * @post | result.ball instanceof Ball
 	 * @post | result.block instanceof SturdyBlockState
 	 * @post | result.paddle instanceof PaddleState
 	 */
-	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
-		Rect blockRect = block.rectangleOf();
+	public ballBlockHitResults hitBy(Ball ball, PaddleState paddle) {
+		SturdyBlockState block = this;
+		Rect blockRect = this.rectangleOf();
 		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
 		boolean destroyed = false;
 		if (normVecBlock != null && 
@@ -222,9 +221,9 @@ final class SturdyBlockState extends BlockState {
 			destroyed = true;
 			
 			// Sturdy blocks are destroyed when hit only if its lifetime is 1.
-			if (((SturdyBlockState) block).getLifetime() > 1) {
+			if (this.getLifetime() > 1) {
 				destroyed=false;
-				block = ((SturdyBlockState) block).decreaseLifetime();
+				block = this.decreaseLifetime();
 			}
 			
 			// Make ball bounce when required 
@@ -293,15 +292,14 @@ final class PowerupBallBlockState extends BlockState {
 	 * and consequently should be removed from the breakout game.
 	 * @creates | result
 	 * @inspects | ball
-	 * @pre | block != null
 	 * @pre | ball != null
 	 * @pre | paddle != null
 	 * @post | result.ball instanceof Ball
 	 * @post | result.block instanceof PowerupBallBlockState
 	 * @post | result.paddle instanceof PaddleState
 	 */
-	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
-		Rect blockRect = block.rectangleOf();
+	public ballBlockHitResults hitBy(Ball ball, PaddleState paddle) {
+		Rect blockRect = this.rectangleOf();
 		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
 		boolean destroyed = false;
 		if (normVecBlock != null && 
@@ -316,7 +314,7 @@ final class PowerupBallBlockState extends BlockState {
 			// Execute block effects
 			ball = ball.powerup();
 		}
-		return new ballBlockHitResults(block, ball, paddle, destroyed);
+		return new ballBlockHitResults(this, ball, paddle, destroyed);
 	} 
 }
 
@@ -379,15 +377,14 @@ final class ReplicatorBlockState extends BlockState {
 	 * and consequently should be removed from the breakout game.
 	 * @creates | result
 	 * @inspects | ball
-	 * @pre | block != null
 	 * @pre | ball != null
 	 * @pre | paddle != null
 	 * @post | result.ball instanceof Ball
 	 * @post | result.block instanceof ReplicatorBlockState
 	 * @post | result.paddle instanceof PaddleState
 	 */
-	public ballBlockHitResults hitBlock(BlockState block, Ball ball, PaddleState paddle) {
-		Rect blockRect = block.rectangleOf();
+	public ballBlockHitResults hitBy(Ball ball, PaddleState paddle) {
+		Rect blockRect = this.rectangleOf();
 		Vector normVecBlock = ball.rectangleOf().overlap(blockRect);
 		boolean destroyed = false;
 		if (normVecBlock != null && 
@@ -402,7 +399,7 @@ final class ReplicatorBlockState extends BlockState {
 			// Execute block effects
 			paddle = paddle.powerup();
 		}
-		return new ballBlockHitResults(block, ball, paddle, destroyed);
+		return new ballBlockHitResults(this, ball, paddle, destroyed);
 	}
 }
 

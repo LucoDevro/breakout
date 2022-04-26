@@ -217,7 +217,7 @@ public class BreakoutState {
 			// Detecting and executing the possible effects of a ball-block hit
 			for (int j=0; j<blocks.length; j++) {
 				BlockState block=blocks[j];
-				ballBlockHitResults blockBallHit = block.hitBlock(block, ball, paddle);
+				ballBlockHitResults blockBallHit = block.hitBy(ball, paddle);
 				if (blockBallHit.destroyed) {
 					removeBlock(block);
 				}

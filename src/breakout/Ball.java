@@ -137,11 +137,11 @@ class NormalBall extends Ball {
 	 * this NormalBall object.
 	 * @creates | result
 	 * @inspects | this
-	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter(),getDiameter())))
-	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter(),getDiameter())))
+	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter()/2,getDiameter()/2)))
+	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter()/2,getDiameter()/2)))
 	 */
 	public Rect rectangleOf() {
-		return new Rect(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
+		return new Rect(center.minus(new Vector(diameter/2, diameter/2)), center.plus(new Vector(diameter/2, diameter/2)));
 	}
 	
 	/**
@@ -346,11 +346,11 @@ class SuperBall extends Ball {
 	 * this SuperBall object.
 	 * @creates | result
 	 * @inspects | this
-	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter(),getDiameter())))
-	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter(),getDiameter())))
+	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter()/2,getDiameter()/2)))
+	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter()/2,getDiameter()/2)))
 	 */
 	public Rect rectangleOf() {
-		return new Rect(center.minus(new Vector(diameter, diameter)), center.plus(new Vector(diameter, diameter)));
+		return new Rect(center.minus(new Vector(diameter/2, diameter/2)), center.plus(new Vector(diameter/2, diameter/2)));
 	}
 	
 	/**
