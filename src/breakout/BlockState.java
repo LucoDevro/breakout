@@ -4,19 +4,9 @@ import java.awt.Color;
 
 /**
  * Each instance of this class represents a block in the breakout game.
- * 
- * @immutable
- * 
- * @invar | getTopLeft() != null
- * @invar | getBottomRight() != null
- * @invar This object's upper left point is situated up and left from its lower right point.
- * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 public abstract class BlockState {
-	/**
-	 * @invar | TL != null
-	 * @invar | BR != null 
-	 */
+
 	protected Point TL;
 	protected Point BR;
 	
@@ -31,8 +21,19 @@ public abstract class BlockState {
 
 /**
  * Each instance of this class represents a normal block in the breakout game.
+ * 
+ * @immutable
+ * 
+ * @invar | getTopLeft() != null
+ * @invar | getBottomRight() != null
+ * @invar This object's upper left point is situated up and left from its lower right point.
+ * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 final class NormalBlockState extends BlockState {
+	/**
+	 * @invar | TL != null
+	 * @invar | BR != null
+	 */
 	private final Point TL;
 	private final Point BR;
 	
@@ -115,10 +116,20 @@ final class NormalBlockState extends BlockState {
 
 /**
  * Each instance of this class represents a sturdy block in the breakout game
+ * 
+ * @immutable
+ * 
+ * @invar | getTopLeft() != null
+ * @invar | getBottomRight() != null
+ * @invar This object's upper left point is situated up and left from its lower right point.
+ * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  * @invar | getLifetime() > 0 && getLifetime() <= 3
  */
 final class SturdyBlockState extends BlockState {
 	/**
+	 * final class NormalBlockState extends BlockState {
+	 * @invar | TL != null
+	 * @invar | BR != null
 	 * @invar | lifetime > 0 && lifetime <= 3
 	 */
 	private final Point TL;
@@ -234,9 +245,20 @@ final class SturdyBlockState extends BlockState {
 }
 
 /**
- * Each instance of this class represents a normal block in the breakout game.
+ * Each instance of this class represents a powerup-ball block in the breakout game.
+ * 
+ * @immutable
+ * 
+ * @invar | getTopLeft() != null
+ * @invar | getBottomRight() != null
+ * @invar This object's upper left point is situated up and left from its lower right point.
+ * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 final class PowerupBallBlockState extends BlockState {
+	/**
+	 * @invar | TL != null
+	 * @invar | BR != null
+	 */
 	private final Point TL;
 	private final Point BR;
 	
@@ -319,9 +341,20 @@ final class PowerupBallBlockState extends BlockState {
 }
 
 /**
- * Each instance of this class represents a normal block in the breakout game.
+ * Each instance of this class represents a replicator-paddle block in the breakout game.
+ * 
+ * @immutable
+ * 
+ * @invar | getTopLeft() != null
+ * @invar | getBottomRight() != null
+ * @invar This object's upper left point is situated up and left from its lower right point.
+ * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 final class ReplicatorBlockState extends BlockState {
+	/**
+	 * @invar | TL != null
+	 * @invar | BR != null
+	 */
 	private final Point TL;
 	private final Point BR;
 	
@@ -411,6 +444,8 @@ final class ReplicatorBlockState extends BlockState {
 class ballPaddleHitResults {
 	/**
 	 * @invar | reps >= 0 && reps <= 3
+	 * @invar | ball != null
+	 * @invar | paddle != null
 	 */
 	Ball ball;
 	PaddleState paddle;
@@ -434,6 +469,11 @@ class ballPaddleHitResults {
  * and an integer indicating whether the block was destroyed and consequently must be removed.
  */
 class ballBlockHitResults {
+	/**
+	 * @invar | block != null
+	 * @invar | ball != null
+	 * @invar | paddle != null
+	 */
 	BlockState block;
 	Ball ball;
 	PaddleState paddle;

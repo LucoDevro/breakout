@@ -5,21 +5,13 @@ import java.awt.Color;
 
 /**
  * Each instance of this class represents a ball in the breakout game.
- * 
- * @invar A ball's diameter is bigger than zero.
- * 	| getDiameter() >= 0
- * @invar A ball's velocity is not equal to the zero vector.
- * 	| getVelocity().equals(new Vector(0,0))
- * @invar | getCenter() != null
- * @invar | getVelocity() != null
  */
-
 public abstract class Ball {
 	/**
-	 * @invar | diameter >= 0
-	 * @invar | velocity.equals(new Vector(0,0))
 	 * @invar | center != null
+	 * @invar | diameter > 0
 	 * @invar | velocity != null
+	 * @invar | !(velocity.equals(new Vector(0,0)))
 	 */
 	protected Point center;
 	protected int diameter;
@@ -45,9 +37,11 @@ public abstract class Ball {
 /**
  * Each instance of this class represents a normal ball in a breakout game.
  * @invar A ball's diameter is bigger than zero.
- * 	| getDiameter() >= 0
+ * 	| getDiameter() > 0
  * @invar A ball's velocity is not equal to the zero vector.
  * 	| !(getVelocity().equals(new Vector(0,0)))
+ * @invar | getCenter() != null
+ * @invar | getVelocity() != null
  */
 class NormalBall extends Ball {
 	/**
@@ -219,11 +213,13 @@ class NormalBall extends Ball {
 /**
  * Each instance of this class represents a supercharged ball in a breakout game.
  * @invar A ball's diameter is bigger than zero.
- * 	| getDiameter() >= 0
+ * 	| getDiameter() > 0
  * @invar A ball's velocity is not equal to the zero vector.
  * 	| !(getVelocity().equals(new Vector(0,0)))
  * @invar A supercharged ball's lifetime is between 0 and the preset lifetime of 10000 ms.
  * 	| getLifetime() > 0 && getLifetime() <= MAX_LIFETIME
+ * @invar | getCenter() != null
+ * @invar | getVelocity() != null
  */
 class SuperBall extends Ball {
 	/**

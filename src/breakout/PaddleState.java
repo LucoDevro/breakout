@@ -4,20 +4,9 @@ import java.awt.Color;
 
 /**
  * Each instance of this class represents a paddle of the breakout game.
- * 
- * @immutable
- * 
- * @invar The size of a paddle is given by a vector with both x and y being positive
- * 	| getSize().getX() >= 0 && getSize().getY() >= 0
- * @invar | getCenter() != null
- * @invar | getSize() != null
  */
-
 public abstract class PaddleState {
-	/**
-	 * @invar | center != null
-	 * @invar | size != null
-	 */
+
 	protected Point center;
 	protected Vector size;
 	
@@ -34,8 +23,19 @@ public abstract class PaddleState {
 
 /**
  * Each instance of this class represents a normal paddle in the breakout game.
+ * 
+ * @immutable
+ * 
+ * @invar The size of a paddle is given by a vector with both x and y being positive
+ * 	| getSize().getX() >= 0 && getSize().getY() >= 0
+ * @invar | getCenter() != null
+ * @invar | getSize() != null
  */
 final class NormalPaddleState extends PaddleState {
+	/**
+	 * @invar | center != null
+	 * @invar | size != null
+	 */
 	private final Point center;
 	private final Vector size;
 	
@@ -148,15 +148,23 @@ final class NormalPaddleState extends PaddleState {
 
 /**
  * Each instance of this class represents a replicator paddle of the breakout game.
+ * 
+ * @immutable
+ * 
+ * @invar The size of a paddle is given by a vector with both x and y being positive
+ * 	| getSize().getX() >= 0 && getSize().getY() >= 0
+ * @invar | getCenter() != null
+ * @invar | getSize() != null
  * @invar | getLifetime() >= 1 && getLifetime() <= 3
  */
 final class ReplicatorPaddleState extends PaddleState {
-	private final Point center;
-	private final Vector size;
-	
 	/**
+	 * @invar | center != null
+	 * @invar | size != null
 	 * @invar | lifetime >= 1 && lifetime <= 3
 	 */
+	private final Point center;
+	private final Vector size;
 	private final int lifetime;
 	
 	/**
