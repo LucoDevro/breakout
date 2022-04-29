@@ -38,7 +38,7 @@ public class GameMap {
 	private static PaddleState createPaddle(Point bottomLeft) {
 		Vector size = new Vector(WIDTH / BLOCK_COLUMNS / 2, HEIGHT / BLOCK_LINES / 2);
 		Point center = bottomLeft.plus(size);
-		return facade.createNormalPaddleState(center,size);
+		return facade.createNormalPaddleState(center);
 	}
 
 	private static Ball createBall(Point bottomLeft) {

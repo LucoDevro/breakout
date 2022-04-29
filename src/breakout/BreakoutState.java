@@ -52,6 +52,7 @@ public class BreakoutState {
 	private final Point bottomRight;
 	private PaddleState paddle;
 	
+	// The maximum elapsed time in ms between two game game ticks
 	public static final int MAX_ELAPSED_TIME = 50;
 
 	/**

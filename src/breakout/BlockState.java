@@ -4,23 +4,6 @@ import java.awt.Color;
 
 /**
  * Each instance of this class represents a block in the breakout game.
- */
-public abstract class BlockState {
-
-	protected Point TL;
-	protected Point BR;
-	
-	protected static final int MAX_STURDY_LIFETIME = 3;
-	
-	public abstract Point getTopLeft();
-	public abstract Point getBottomRight();
-	public abstract Rect rectangleOf();
-	public abstract Color getColor();
-	public abstract ballBlockHitResults hitBy(Ball ball, PaddleState paddle);
-}
-
-/**
- * Each instance of this class represents a normal block in the breakout game.
  * 
  * @immutable
  * 
@@ -29,51 +12,84 @@ public abstract class BlockState {
  * @invar This object's upper left point is situated up and left from its lower right point.
  * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
-final class NormalBlockState extends BlockState {
+public abstract class BlockState {
 	/**
 	 * @invar | TL != null
 	 * @invar | BR != null
 	 */
-	private final Point TL;
-	private final Point BR;
+	protected Point TL;
+	protected Point BR;
 	
-	// Constructor
+	// The maximum lifetime of a sturdy block in number of hits
+	protected static final int MAX_STURDY_LIFETIME = 3;
+	
+	/**
+	 * Returns the topleft Point object contained within this BlockState object
+	 */
+	public abstract Point getTopLeft();
+	
+	/**
+	 * Returns the bottomright Point object contained within this BlockState object
+	 */
+	public abstract Point getBottomRight();
+	
+	/**
+	 * Returns a Rectangle object representing the rectangle surrounding the block represented by this BlockState object
+	 * 
+	 * @creates | result
+	 * @post | result.getTopLeft().equals(getTopLeft())
+	 * @post | result.getBottomRight().equals(getBottomRight())
+	 */
+	public abstract Rect rectangleOf();
+	
+	/**
+	 * Returns the default Color object used to display a block in the breakout game
+	 * -> Different behaviour depending on the block type
+	 */
+	public abstract Color getColor();
+	
+	/**
+	 * Returns a ballBlockHitResults object containing the balls, the blocks and the paddle states resulting 
+	 * from a possible ball-block hit, and a boolean indicating whether the block was destroyed by this hit
+	 * and consequently should be removed from the breakout game.
+	 * -> Different behaviour depending on the block type
+	 * @creates | result
+	 * @inspects | ball
+	 * @pre | ball != null
+	 * @pre | paddle != null
+	 */
+	public abstract ballBlockHitResults hitBy(Ball ball, PaddleState paddle);
+}
+
+/**
+ * Each instance of this class represents a normal block in the breakout game.
+ * 
+ * @immutable
+ */
+final class NormalBlockState extends BlockState {
+	
 	/**
 	 * Returns an object representing a normal rectangular block defined by the given upper left and lower right points.
 	 * @pre | TL != null
 	 * @pre | BR != null
 	 * @pre The upper left point mist be situated up and left from the lower right point
 	 * 	| TL.isUpAndLeftFrom(BR)
-	 * @post | getTopLeft()==TL
-	 * @post | getBottomRight()==BR
+	 * @post | getTopLeft().equals(TL)
+	 * @post | getBottomRight().equals(BR)
 	 */
 	public NormalBlockState(Point TL, Point BR) {
-		this.TL=TL;
-		this.BR=BR;
+		this.TL= new Point(TL.getX(), TL.getY());
+		this.BR= new Point(BR.getX(), BR.getY());
 	}
 	
-	// Getters
-	/**
-	 * Returns the topleft Point object contained within this NormalBlockState object
-	 */
 	public Point getTopLeft() {
-		return TL;
+		return new Point(TL.getX(), TL.getY());
 	}
 	
-	/**
-	 * Returns the bottomright Point object contained within this NormalBlockState object
-	 */
 	public Point getBottomRight() {
-		return BR;
+		return new Point(BR.getX(), BR.getY());
 	}
-	
-	/**
-	 * Returns a Rectangle object representing the rectangle surrounding the block represented by this NormalBlockState object
-	 * 
-	 * @creates | result
-	 * @post | result.getTopLeft().equals(getTopLeft())
-	 * @post | result.getBottomRight().equals(getBottomRight())
-	 */
+
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
@@ -118,22 +134,13 @@ final class NormalBlockState extends BlockState {
  * Each instance of this class represents a sturdy block in the breakout game
  * 
  * @immutable
- * 
- * @invar | getTopLeft() != null
- * @invar | getBottomRight() != null
- * @invar This object's upper left point is situated up and left from its lower right point.
- * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
+ *
  * @invar | getLifetime() > 0 && getLifetime() <= 3
  */
 final class SturdyBlockState extends BlockState {
 	/**
-	 * final class NormalBlockState extends BlockState {
-	 * @invar | TL != null
-	 * @invar | BR != null
 	 * @invar | lifetime > 0 && lifetime <= 3
 	 */
-	private final Point TL;
-	private final Point BR;
 	private final int lifetime;
 	
 	/**
@@ -143,27 +150,21 @@ final class SturdyBlockState extends BlockState {
 	 * @pre The upper left point mist be situated up and left from the lower right point
 	 * 	| TL.isUpAndLeftFrom(BR)
 	 * @pre | lifetime > 0 && lifetime <= MAX_STURDY_LIFETIME
-	 * @post | getTopLeft()==TL
-	 * @post | getBottomRight()==BR
+	 * @post | getTopLeft().equals(TL)
+	 * @post | getBottomRight().equals(BR)
 	 */
 	public SturdyBlockState(Point TL, Point BR, int lifetime) {
-		this.TL=TL;
-		this.BR=BR;
+		this.TL=new Point(TL.getX(), TL.getY());
+		this.BR=new Point(BR.getX(), BR.getY());
 		this.lifetime=lifetime;
 	}
 	
-	/**
-	 * Returns the topleft Point object contained within this SturdyBlockState object
-	 */
 	public Point getTopLeft() {
-		return TL;
+		return new Point(TL.getX(), TL.getY());
 	}
 	
-	/**
-	 * Returns the bottomright Point object contained within this SturdyBlockState object
-	 */
 	public Point getBottomRight() {
-		return BR;
+		return new Point(BR.getX(), BR.getY());
 	}
 	
 	/**
@@ -182,19 +183,12 @@ final class SturdyBlockState extends BlockState {
 		return new SturdyBlockState(TL,BR,lifetime-1);
 	}
 	
-	/**
-	 * Returns a Rectangle object representing the rectangle surrounding the block represented by this SturdyBlockState object
-	 * 
-	 * @creates | result
-	 * @post | result.getTopLeft().equals(getTopLeft())
-	 * @post | result.getBottomRight().equals(getBottomRight())
-	 */
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
 	
 	/**
-	 * Returns the default colour used to display a sturdy block in the breakout game, i.e. grey up to white,
+	 * Returns the default Color object used to display a sturdy block in the breakout game, i.e. grey up to white,
 	 * depending on the number of hits.
 	 */
 	public Color getColor() {
@@ -248,55 +242,30 @@ final class SturdyBlockState extends BlockState {
  * Each instance of this class represents a powerup-ball block in the breakout game.
  * 
  * @immutable
- * 
- * @invar | getTopLeft() != null
- * @invar | getBottomRight() != null
- * @invar This object's upper left point is situated up and left from its lower right point.
- * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 final class PowerupBallBlockState extends BlockState {
-	/**
-	 * @invar | TL != null
-	 * @invar | BR != null
-	 */
-	private final Point TL;
-	private final Point BR;
-	
 	/**
 	 * Returns an object representing a power-up-ball rectangular block defined by the given upper left and lower right points.
 	 * @pre | TL != null
 	 * @pre | BR != null
 	 * @pre The upper left point mist be situated up and left from the lower right point
 	 * 	| TL.isUpAndLeftFrom(BR)
-	 * @post | getTopLeft()==TL
-	 * @post | getBottomRight()==BR
+	 * @post | getTopLeft().equals(TL)
+	 * @post | getBottomRight().equals(BR)
 	 */
 	public PowerupBallBlockState(Point TL, Point BR) {
-		this.TL=TL;
-		this.BR=BR;
+		this.TL=new Point(TL.getX(), TL.getY());
+		this.BR=new Point(BR.getX(), BR.getY());
 	}
 	
-	/**
-	 * Returns the topleft Point object contained within this PowerupBallBlockState object
-	 */
 	public Point getTopLeft() {
-		return TL;
+		return new Point(TL.getX(), TL.getY());
 	}
-	
-	/**
-	 * Returns the bottomright Point object contained within this PowerupBallBlockState object
-	 */
+
 	public Point getBottomRight() {
-		return BR;
+		return new Point(BR.getX(), BR.getY());
 	}
 	
-	/**
-	 * Returns a Rectangle object representing the rectangle surrounding the block represented by this PowerupBallBlockState object
-	 * 
-	 * @creates | result
-	 * @post | result.getTopLeft().equals(getTopLeft())
-	 * @post | result.getBottomRight().equals(getBottomRight())
-	 */
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
@@ -344,55 +313,30 @@ final class PowerupBallBlockState extends BlockState {
  * Each instance of this class represents a replicator-paddle block in the breakout game.
  * 
  * @immutable
- * 
- * @invar | getTopLeft() != null
- * @invar | getBottomRight() != null
- * @invar This object's upper left point is situated up and left from its lower right point.
- * 	| getTopLeft().isUpAndLeftFrom(getBottomRight())
  */
 final class ReplicatorBlockState extends BlockState {
-	/**
-	 * @invar | TL != null
-	 * @invar | BR != null
-	 */
-	private final Point TL;
-	private final Point BR;
-	
 	/**
 	 * Returns an object representing a replicator rectangular block defined by the given upper left and lower right points.
 	 * @pre | TL != null
 	 * @pre | BR != null
 	 * @pre The upper left point mist be situated up and left from the lower right point
 	 * 	| TL.isUpAndLeftFrom(BR)
-	 * @post | getTopLeft()==TL
-	 * @post | getBottomRight()==BR
+	 * @post | getTopLeft().equals(TL)
+	 * @post | getBottomRight().equals(BR)
 	 */
 	public ReplicatorBlockState(Point TL, Point BR) {
-		this.TL=TL;
-		this.BR=BR;
+		this.TL=new Point(TL.getX(), TL.getY());
+		this.BR=new Point(BR.getX(), BR.getY());
 	}
 	
-	/**
-	 * Returns the topleft Point object contained within this ReplicatorBlockState object
-	 */
 	public Point getTopLeft() {
-		return TL;
+		return new Point(TL.getX(), TL.getY());
 	}
-	
-	/**
-	 * Returns the bottomright Point object contained within this ReplicatorBlockState object
-	 */
+
 	public Point getBottomRight() {
-		return BR;
+		return new Point(BR.getX(), BR.getY());
 	}
 	
-	/**
-	 * Returns a Rectangle object representing the rectangle surrounding the block represented by this ReplicatorBlockState object
-	 * 
-	 * @creates | result
-	 * @post | result.getTopLeft().equals(getTopLeft())
-	 * @post | result.getBottomRight().equals(getBottomRight())
-	 */
 	public Rect rectangleOf() {
 		return new Rect(TL, BR);
 	}
@@ -409,7 +353,7 @@ final class ReplicatorBlockState extends BlockState {
 	 * from a possible ball-block hit, and a boolean indicating whether the block was destroyed by this hit
 	 * and consequently should be removed from the breakout game.
 	 * @creates | result
-	 * @inspects | ball
+	 * @inspects | ball, paddle
 	 * @pre | ball != null
 	 * @pre | paddle != null
 	 * @post | result.ball instanceof Ball
@@ -438,18 +382,20 @@ final class ReplicatorBlockState extends BlockState {
 
 // Some classes simulating structs
 /**
- * Each instance of this class simply collects the ball and the paddle states resulting from a possible ball-paddle hit,
- * and an integer indicating how much replicates are required in case of a hit with a replicator paddle.
+ * Each instance of this class collects the ball and the paddle states resulting from a possible ball-paddle hit,
+ * and an integer indicating how much replicates are required.
+ * 
+ * @immutable
  */
-class ballPaddleHitResults {
+final class ballPaddleHitResults {
 	/**
 	 * @invar | reps >= 0 && reps <= 3
 	 * @invar | ball != null
 	 * @invar | paddle != null
 	 */
-	Ball ball;
-	PaddleState paddle;
-	int reps;
+	final Ball ball;
+	final PaddleState paddle;
+	final int reps;
 	
 	/**
 	 * Returns a struct-like ballPaddleHitResults object containing the ball and paddle states and required number of replicates
@@ -465,19 +411,21 @@ class ballPaddleHitResults {
 }
 
 /**
- * Each instance of this class simply collects the ball, the paddle and the block states resulting from a possible ball-block hit,
+ * Each instance of this class collects the ball, the paddle and the block states resulting from a possible ball-block hit,
  * and an integer indicating whether the block was destroyed and consequently must be removed.
+ * 
+ * @immutable
  */
-class ballBlockHitResults {
+final class ballBlockHitResults {
 	/**
 	 * @invar | block != null
 	 * @invar | ball != null
 	 * @invar | paddle != null
 	 */
-	BlockState block;
-	Ball ball;
-	PaddleState paddle;
-	boolean destroyed;
+	final BlockState block;
+	final Ball ball;
+	final PaddleState paddle;
+	final boolean destroyed;
 	
 	/**
 	 * Returns a struct-like ballBlockHitResults object containing the ball, paddle and block states, and the boolean indicating

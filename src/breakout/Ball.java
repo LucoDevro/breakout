@@ -5,6 +5,13 @@ import java.awt.Color;
 
 /**
  * Each instance of this class represents a ball in the breakout game.
+ * 
+ * @invar A ball's diameter is bigger than zero.
+ * 	| getDiameter() > 0
+ * @invar A ball's velocity is not equal to the zero vector.
+ * 	| !(getVelocity().equals(new Vector(0,0)))
+ * @invar | getCenter() != null
+ * @invar | getVelocity() != null
  */
 public abstract class Ball {
 	/**
@@ -17,31 +24,120 @@ public abstract class Ball {
 	protected int diameter;
 	protected Vector velocity;
 	
-	protected static final Vector[] replicateBallsSpeedDiff = {new Vector(2,-2), new Vector(-2,2), new Vector(2,2)};
-	protected static final int MAX_LIFETIME = 10000;
+	// The additional speeds of ball replicates produced by a replicator paddle
+	public static final Vector[] replicateBallsSpeedDiff = {new Vector(2,-2), new Vector(-2,2), new Vector(2,2)};
+	// The maximum lifetime of a supercharged ball in ms
+	public static final int MAX_LIFETIME = 10000;
 	
+	/**
+	 * Returns the center Point object of the Ball object.
+	 */
 	public abstract Point getCenter();
+	
+	/**
+	 * Returns the diameter of the Ball object.
+	 */
 	public abstract int getDiameter();
+	
+	/**
+	 * Returns the velocity Vector object of the Ball object.
+	 */
 	public abstract Vector getVelocity();
+	
+	/**
+	 * Sets the center Point object of this Ball object to the supplied Point object.
+	 * @mutates | this
+	 * @pre | center != null
+	 * @post | getCenter().equals(center)
+	 */
 	public abstract void changeCenter(Point center);
+	
+	/**
+	 * Sets the velocity Vector object of this Ball object to the supplied Vector object.
+	 * @mutates | this
+	 * @pre | velocity != null
+	 * @pre | !(velocity.equals(new Vector(0,0)))
+	 * @post | getVelocity().equals(velocity)
+	 */
 	public abstract void changeVelocity(Vector velocity);
+	
+	/**
+	 * Changes the motion of the ball depending on whether the block it hit, was destroyed.
+	 * -> Different behaviour depending on the ball type.
+	 * @mutates | this
+	 * @pre | rect != null
+	 */
 	public abstract void hitBlock(Rect rect, boolean destroyed);
+	
+	/**
+	 * Changes the state of this Ball object so that it reflects a ball that has rolled for a non-zero amount
+	 *  of time into its current direction and speed, as reflected in its velocity Vector.
+	 * 
+	 * Assuming that speed is expressed in units of 1/ms or 1000/s, displacements can be quickly computed by scaling
+	 * the velocity vector by the elapsed time in ms.
+	 * 
+	 * @mutates | this
+	 * @pre | elapsedTime != 0
+	 * @post | getCenter().equals(old(getCenter().plus(getVelocity().scaled(elapsedTime))))
+	 */
 	public abstract void roll(int elapsedTime);
+	
+	/**
+	 * Changes the state of this Ball object so that is reflects a ball that has bounced
+	 * on a surface represented by the supplied normal unit vector object
+	 * @mutates | this
+	 * @pre | direction != null && direction.getSquareLength() == 1
+	 * @pre | !(direction.equals(new Vector(0,0)))
+	 * @post | getVelocity().equals(old(getVelocity()).mirrorOver(direction))
+	 */
 	public abstract void bounce(Vector direction);
+	
+	/**
+	 * Returns a Rectangle object that represents the rectangle surrounding the ball represented by
+	 * this Ball object.
+	 * @creates | result
+	 * @inspects | this
+	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter()/2,getDiameter()/2)))
+	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter()/2,getDiameter()/2)))
+	 */
 	public abstract Rect rectangleOf();
+	
+	/**
+	 * Returns the default Color object used to display a ball in the breakout game
+	 * -> Different colour depending on the ball type.
+	 */
 	public abstract Color getColor();
+	
+	/**
+	 * Returns an array with a predefined number (1 up to 3) of replicate balls, differing only
+	 * in velocity by the preset replication velocity differences 'replicateBallsSpeedDiff'.
+	 * @creates | result
+	 * @inspects | this
+	 * @pre | reps >= 1 && reps <= 3
+	 * @post | result.length == reps
+	 * @post | IntStream.range(0,result.length).allMatch(i -> result[i].getVelocity().equals(old(getVelocity()).plus(replicateBallsSpeedDiff[i])))
+	 */
 	public abstract Ball[] replicate(int reps);
+	
+	/**
+	 * Returns a copy of this Ball object representing a ball that has been powered up.
+	 * -> Different behaviour depending on the ball type
+	 * @creates | result
+	 * @inspects | this
+	 */
 	public abstract SuperBall powerup();
+		
+	/**
+	 * Ages the ball so that its lifetime decreases.
+	 * -> Different behaviour depending on the ball type
+	 * @pre | elapsedTime > 0
+	 * @inspects | this
+	 */
 	public abstract Ball age(int elapsedTime);
 }
+
 /**
- * Each instance of this class represents a normal ball in a breakout game.
- * @invar A ball's diameter is bigger than zero.
- * 	| getDiameter() > 0
- * @invar A ball's velocity is not equal to the zero vector.
- * 	| !(getVelocity().equals(new Vector(0,0)))
- * @invar | getCenter() != null
- * @invar | getVelocity() != null
+ * Each instance of this class represents a normal ball in the breakout game.
  */
 class NormalBall extends Ball {
 	/**
@@ -56,94 +152,45 @@ class NormalBall extends Ball {
 	 * @post | getVelocity().equals(velocity)
 	 */
 	public NormalBall(Point center, int diameter, Vector velocity) {
-		this.center=center;
+		this.center=new Point(center.getX(), center.getY());
 		this.diameter=diameter;
-		this.velocity=velocity;
+		this.velocity=new Vector(velocity.getX(), velocity.getY());
 	}
 	
-	/**
-	 * Returns the center Point object contained within this NormalBall object.
-	 */
 	public Point getCenter() {
-		return center;
+		return new Point(center.getX(), center.getY());
 	}
 	
-	/**
-	 * Returns the diameter contained within this NormalBall object.
-	 */
 	public int getDiameter() {
 		return diameter;
 	}
 	
-	/**
-	 * Returns the velocity Vector object contained within this NormalBall object.
-	 */
 	public Vector getVelocity() {
-		return velocity;
+		return new Vector(velocity.getX(), velocity.getY());
 	}
 	
-	/**
-	 * Sets the center Point object of this NormalBall object to the supplied Point object.
-	 * @mutates | this
-	 * @pre | center != null
-	 * @post | getCenter().equals(center)
-	 */
 	public void changeCenter(Point center) {
-		this.center=center;
+		this.center=new Point(center.getX(), center.getY());
 	}
 	
-	/**
-	 * Sets the velocity Vector object of this NormalBall object to the supplied Velocity object.
-	 * @mutates | this
-	 * @pre | velocity != null
-	 * @pre | !(velocity.equals(new Vector(0,0)))
-	 * @post | getVelocity().equals(velocity)
-	 */
 	public void changeVelocity(Vector velocity) {
-		this.velocity=velocity;
+		this.velocity=new Vector(velocity.getX(), velocity.getY());
 	}
 	
-	/**
-	 * Changes the state of this NormalBall object so that it reflects a ball that has rolled for a
-	 * non-zero amount of time into its current direction and at a speed, both contained in its velocity Vector.
-	 * 
-	 * Assuming that speed is expressed in units of 1/ms or 1000/s, displacements can be quickly achieved by scaling
-	 * the velocity vector.
-	 * 
-	 * @mutates | this
-	 * @pre | elapsedTime != 0
-	 * @post | getCenter().equals(old(getCenter().plus(getVelocity().scaled(elapsedTime))))
-	 */
 	public void roll(int elapsedTime) {
 		center=center.plus(velocity.scaled(elapsedTime));
 	}
 	
-	/**
-	 * Changes the state of this NormalBall object so that is reflects a ball that has bounced
-	 * on a surface represented by the supplied normal unit vector
-	 * @mutates | this
-	 * @pre | direction != null && direction.getSquareLength() == 1
-	 * @pre | !(direction.equals(new Vector(0,0)))
-	 * @post | getVelocity().equals(old(getVelocity()).mirrorOver(direction))
-	 */
 	public void bounce(Vector direction) {
 		velocity=velocity.mirrorOver(direction);
 	}
-	
-	/**
-	 * Returns a Rectangle object that represents the rectangle surrounding the ball represented by
-	 * this NormalBall object.
-	 * @creates | result
-	 * @inspects | this
-	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter()/2,getDiameter()/2)))
-	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter()/2,getDiameter()/2)))
-	 */
+
 	public Rect rectangleOf() {
 		return new Rect(center.minus(new Vector(diameter/2, diameter/2)), center.plus(new Vector(diameter/2, diameter/2)));
 	}
 	
 	/**
-	 * Returns the default colour used to display a normal ball in the breakout game, i.e. red.
+	 * Returns the default Color object used to display a normal ball in the breakout game, i.e. red.
 	 */
 	public Color getColor() {
 		return Color.red;
@@ -174,15 +221,6 @@ class NormalBall extends Ball {
 		return new SuperBall(center, diameter, velocity, MAX_LIFETIME);
 	}
 	
-	/**
-	 * Returns an array with a predefined number (1 up to 3) of replicate normal balls, differing only
-	 * in velocity by the preset replication differences 'replicateBallsSpeedDiff'.
-	 * @creates | result
-	 * @inspects | this
-	 * @pre | reps >= 1 && reps <= 3
-	 * @post | result.length == reps
-	 * @post | IntStream.range(0,result.length).allMatch(i -> result[i].getVelocity().equals(old(getVelocity()).plus(replicateBallsSpeedDiff[i])))
-	 */
 	public NormalBall[] replicate(int reps) {
 		NormalBall[] replicated = new NormalBall[reps];
 		for (int i=0; i<reps; i++) {
@@ -192,13 +230,14 @@ class NormalBall extends Ball {
 	}
 	
 	/**
-	 * Returns a copy of this NormalBall object representing a normal ball that has been powered up.
-	 * Powering up a normal ball always results in converting it to a supercharged ball.
+	 * Returns a copy of this Ball object representing a ball that has been powered up.
+	 * For normal balls, this converts this NormalBall object to a SuperBall with maximum lifetime.
 	 * @creates | result
 	 * @inspects | this
+	 * @post | result instanceof SuperBall
 	 * @post | result.getCenter().equals(old(getCenter()))
-	 * @post | result.getDiameter() == old(getDiameter())
 	 * @post | result.getVelocity().equals(old(getVelocity()))
+	 * @post | result.getDiameter() == old(getDiameter())
 	 * @post | result.getLifetime() == MAX_LIFETIME
 	 */
 	public SuperBall powerup() {
@@ -215,15 +254,10 @@ class NormalBall extends Ball {
 }
 
 /**
- * Each instance of this class represents a supercharged ball in a breakout game.
- * @invar A ball's diameter is bigger than zero.
- * 	| getDiameter() > 0
- * @invar A ball's velocity is not equal to the zero vector.
- * 	| !(getVelocity().equals(new Vector(0,0)))
+ * Each instance of this class represents a supercharged ball in the breakout game.
+ * 
  * @invar A supercharged ball's lifetime is between 0 and the preset lifetime of 10000 ms.
  * 	| getLifetime() > 0 && getLifetime() <= MAX_LIFETIME
- * @invar | getCenter() != null
- * @invar | getVelocity() != null
  */
 class SuperBall extends Ball {
 	/**
@@ -245,31 +279,22 @@ class SuperBall extends Ball {
 	 * @post | getLifetime() == lifetime
 	 */
 	public SuperBall(Point center, int diameter, Vector velocity, long lifetime) {
-		this.center=center;
+		this.center=new Point(center.getX(), center.getY());
 		this.diameter=diameter;
-		this.velocity=velocity;
+		this.velocity=new Vector(velocity.getX(), velocity.getY());
 		this.lifetime=lifetime;
 	}
 	
-	/**
-	 * Returns the center Point object contained within this SuperBall object.
-	 */
 	public Point getCenter() {
-		return center;
+		return new Point(center.getX(), center.getY());
 	}
-	
-	/**
-	 * Returns the diameter contained within this SuperBall object.
-	 */
+
 	public int getDiameter() {
 		return diameter;
 	}
 	
-	/**
-	 * Returns the velocity Vector object contained within this SuperBall object.
-	 */
 	public Vector getVelocity() {
-		return velocity;
+		return new Vector(velocity.getX(), velocity.getY());
 	}
 	
 	/**
@@ -279,25 +304,12 @@ class SuperBall extends Ball {
 		return lifetime;
 	}
 	
-	/**
-	 * Sets the center Point object of this SuperBall object to the supplied Point object.
-	 * @mutates | this
-	 * @pre | center != null
-	 * @post | getCenter().equals(center)
-	 */
 	public void changeCenter(Point center) {
-		this.center=center;
+		this.center= new Point(center.getX(), center.getY());
 	}
 	
-	/**
-	 * Sets the velocity Vector object of this SuperBall object to the supplied Velocity object.
-	 * @mutates | this
-	 * @pre | velocity != null
-	 * @pre | !(velocity.equals(new Vector(0,0)))
-	 * @post | getVelocity().equals(velocity)
-	 */
 	public void changeVelocity(Vector velocity) {
-		this.velocity=velocity;
+		this.velocity= new Vector(velocity.getX(), velocity.getY());
 	}
 	
 	/**
@@ -319,46 +331,20 @@ class SuperBall extends Ball {
 		this.lifetime = MAX_LIFETIME;
 	}
 	
-	/**
-	 * Changes the state of this SuperBall object so that it reflects a ball that has rolled for a
-	 * non-zero amount of time into its current direction and at a speed, both contained in its velocity Vector.
-	 * 
-	 * Assuming that speed is expressed in units of 1/ms or 1000/s, displacements can be quickly achieved by scaling
-	 * the velocity vector.
-	 * 
-	 * @mutates | this
-	 * @pre | elapsedTime != 0
-	 * @post | getCenter().equals(old(getCenter()).plus(getVelocity().scaled(elapsedTime)))
-	 */
 	public void roll(int elapsedTime) {
 		center=center.plus(velocity.scaled(elapsedTime));
 	}
 	
-	/**
-	 * Changes the state of this SuperBall object so that is reflects a ball that has bounced
-	 * on a surface represented by the supplied normal unit vector
-	 * @mutates | this
-	 * @pre | direction != null && direction.getSquareLength() == 1
-	 * @post | getVelocity().equals(old(getVelocity()).mirrorOver(direction))
-	 */
 	public void bounce(Vector direction) {
 		velocity=velocity.mirrorOver(direction);
 	}
 	
-	/**
-	 * Returns a Rectangle object that represents the rectangle surrounding the ball represented by
-	 * this SuperBall object.
-	 * @creates | result
-	 * @inspects | this
-	 * @post | result.getTopLeft().equals(getCenter().minus(new Vector(getDiameter()/2,getDiameter()/2)))
-	 * @post | result.getBottomRight().equals(getCenter().plus(new Vector(getDiameter()/2,getDiameter()/2)))
-	 */
 	public Rect rectangleOf() {
 		return new Rect(center.minus(new Vector(diameter/2, diameter/2)), center.plus(new Vector(diameter/2, diameter/2)));
 	}
 	
 	/**
-	 * Returns the default colour used to display a supercharged ball in the breakout game, i.e. pink.
+	 * Returns the default Color object used to display a supercharged ball in the breakout game, i.e. pink.
 	 */
 	public Color getColor() {
 		return Color.pink;
@@ -405,15 +391,6 @@ class SuperBall extends Ball {
 		return new NormalBall(center, diameter, velocity); 
 	}
 	
-	/**
-	 * Returns an array with a predefined number (1 up to 3) of replicate supercharged balls, differing only
-	 * in velocity by the preset replication differences 'replicateBallsSpeedDiff'.
-	 * @creates | result
-	 * @inspects | this
-	 * @pre | reps >= 1 && reps <= 3
-	 * @post | result.length == reps
-	 * @post | IntStream.range(0,result.length).allMatch(i -> result[i].getVelocity().equals(old(getVelocity()).plus(replicateBallsSpeedDiff[i])))
-	 */
 	public SuperBall[] replicate(int reps) {
 		SuperBall[] replicated = new SuperBall[reps];
 		for (int i=0; i<reps; i++) {

@@ -3,26 +3,7 @@ package breakout;
 import java.awt.Color;
 
 /**
- * Each instance of this class represents a paddle of the breakout game.
- */
-public abstract class PaddleState {
-
-	protected Point center;
-	protected Vector size;
-	
-	protected static final int MAX_REPLICATOR_LIFETIME = 3;
-	
-	public abstract Point getCenter();
-	public abstract Vector getSize();
-	public abstract Rect rectangleOf();
-	public abstract PaddleState changeCenter(Point center);
-	public abstract Color getColor();
-	public abstract ballPaddleHitResults hitBall(Ball ball, int paddleDir);
-	public abstract ReplicatorPaddleState powerup();
-}
-
-/**
- * Each instance of this class represents a normal paddle in the breakout game.
+ * Each instance of this class represents a paddle in the breakout game.
  * 
  * @immutable
  * 
@@ -31,15 +12,82 @@ public abstract class PaddleState {
  * @invar | getCenter() != null
  * @invar | getSize() != null
  */
-final class NormalPaddleState extends PaddleState {
+public abstract class PaddleState {
+	
 	/**
 	 * @invar | center != null
 	 * @invar | size != null
 	 */
-	private final Point center;
-	private final Vector size;
+	protected Point center;
+	protected Vector size;
 	
-	// Constructor
+	// The maximum lifetime in number of hits of a replicator paddle
+	protected static final int MAX_REPLICATOR_LIFETIME = 3;
+	
+	// The default paddle dimensions
+	public static final int HEIGHT = 500;
+	public static final int WIDTH = 3000;
+	public static final Vector DEFAULT_SIZE = new Vector(WIDTH/2, HEIGHT/2);
+	
+	/**
+	 * Returns the center Point object contained within this PaddleState object.
+	 */
+	public abstract Point getCenter();
+	
+	/**
+	 * Returns the size Vector object contained within this PaddleState object.
+	 */
+	public abstract Vector getSize();
+	
+	/**
+	 * Returns a Rectangle object representing the rectangle surrounding the paddle represented by this PaddleState object.
+	 * 
+	 * @creates | result
+	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
+	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
+	 */
+	public abstract Rect rectangleOf();
+	
+	/**
+	 * Sets the center Point object contained within this PaddleState object to the one supplied.
+	 * @creates | result
+	 * @pre | center != null
+	 * @post | result.getCenter().equals(center)
+	 */
+	public abstract PaddleState changeCenter(Point center);
+	
+	/**
+	 * Returns the Color object used to display paddles in the breakout game
+	 * -> Different behaviour depending on the paddle type
+	 */
+	public abstract Color getColor();
+	
+	/**
+	 * Returns a ballPaddleHitResults object containing the ball and paddle states and the required number of replicates to be made,
+	 * resulting from a possible ball-paddle hit.
+	 * -> Different behaviour depending on the paddle type
+	 * @creates | result
+	 * @inspects | ball
+	 * @pre | ball != null
+	 * @pre | paddleDir == 0 || paddleDir == 1 || paddleDir == -1
+	 */
+	public abstract ballPaddleHitResults hitBall(Ball ball, int paddleDir);
+	
+	/**
+	 * Returns a copy of this ReplicatorPaddleState object representing a replicator paddle that has been powered up.
+	 * @creates | result
+	 * -> Different behaviour depending on the paddle state
+	 */
+	public abstract ReplicatorPaddleState powerup();
+}
+
+/**
+ * Each instance of this class represents a normal paddle in the breakout game.
+ * 
+ * @immutable
+ */
+final class NormalPaddleState extends PaddleState {
+	
 	/**
 	 * Returns an object representing a normal rectangular paddle defined by a center point and a size vector
 	 * that is positive for both coordinates.
@@ -52,56 +100,35 @@ final class NormalPaddleState extends PaddleState {
 	 * @post | getSize().equals(size)
 	 */
 	public NormalPaddleState(Point center, Vector size) {
-		this.center=center;
-		this.size=size;
+		this.center=new Point(center.getX(), center.getY());
+		this.size=new Vector(size.getX(), size.getY());
 	}
 	
-	// Getters
-	/**
-	 * Returns the center Point object contained within this NormalPaddleState object.
-	 */
 	public Point getCenter() {
-		return center;
+		return new Point(center.getX(), center.getY());
 	}
 	
-	/**
-	 * Returns the size Vector object contained within this NormalPaddleState object.
-	 */
 	public Vector getSize() {
-		return size;
+		return new Vector(size.getX(), size.getY());
 	}
-	
-	// Setters
-	/**
-	 * Sets the center Point object contained within this NormalPaddleState object to the one supplied.
-	 * @creates | result
-	 * @pre | center != null
-	 * @post | result.getCenter().equals(center)
-	 */
+
 	public NormalPaddleState changeCenter(Point center) {
 		return new NormalPaddleState(center, size);
 	}
-	
-	/**
-	 * Returns a Rectangle object representing the rectangle surrounding the paddle represented by this NormalPaddleState object.
-	 * 
-	 * @creates | result
-	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
-	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
-	 */
+
 	public Rect rectangleOf() {
 		return new Rect(center.minus(size), center.plus(size));
 	}
 	
 	/**
-	 * Returns the default colour used to display normal paddles in the breakout game, i.e. green.
+	 * Returns the Color object used to display normal paddles in the breakout game, i.e. green.
 	 */
 	public Color getColor() {
 		return Color.green;
 	}
 	
 	/**
-	 * Returns a copy of this NormalPaddleState object converted to a ReplicatorPaddleState object with the default lifetime.
+	 * Returns a copy of this NormalPaddleState object converted to a ReplicatorPaddleState object with the maximum lifetime.
 	 * @creates | result
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
@@ -119,7 +146,6 @@ final class NormalPaddleState extends PaddleState {
 	 * @pre | ball != null
 	 * @pre | paddleDir == 0 || paddleDir == 1 || paddleDir == -1
 	 * @post | result.reps == 0
-	 * @post | result.reps >= 0 && result.reps <= 3
 	 * @post | result.ball instanceof Ball
 	 * @post | result.paddle instanceof NormalPaddleState
 	 */
@@ -135,7 +161,7 @@ final class NormalPaddleState extends PaddleState {
 	
 	/**
 	 * Returns a copy of this NormalPaddleState object representing a normal paddle that has been powered up
-	 * to a replicator paddle state with default lifetime.
+	 * to a replicator paddle state with maxiumum lifetime.
 	 * @creates | result
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
@@ -151,20 +177,12 @@ final class NormalPaddleState extends PaddleState {
  * 
  * @immutable
  * 
- * @invar The size of a paddle is given by a vector with both x and y being positive
- * 	| getSize().getX() >= 0 && getSize().getY() >= 0
- * @invar | getCenter() != null
- * @invar | getSize() != null
  * @invar | getLifetime() >= 1 && getLifetime() <= 3
  */
 final class ReplicatorPaddleState extends PaddleState {
 	/**
-	 * @invar | center != null
-	 * @invar | size != null
 	 * @invar | lifetime >= 1 && lifetime <= 3
 	 */
-	private final Point center;
-	private final Vector size;
 	private final int lifetime;
 	
 	/**
@@ -178,45 +196,26 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * 	| size.getX() >= 0 && size.getY() >= 0
 	 * @post | getCenter().equals(center)
 	 * @post | getSize().equals(size)
-	 * @post | getLifetime() == i
+	 * @post | getLifetime() == lifetime
 	 */
-	public ReplicatorPaddleState(Point center, Vector size, int i) {
-		this.center=center;
-		this.size=size;
-		this.lifetime=i;
+	public ReplicatorPaddleState(Point center, Vector size, int lifetime) {
+		this.center=new Point(center.getX(), center.getY());
+		this.size=new Vector(size.getX(), size.getY());
+		this.lifetime=lifetime;
 	}
-	
-	/**
-	 * Returns the center Point object contained within this ReplicatorPaddleState object.
-	 */
+
 	public Point getCenter() {
-		return center;
+		return new Point(center.getX(), center.getY());
 	}
-	
-	/**
-	 * Returns the size Vector object contained within this ReplicatorPaddleState object.
-	 */
+
 	public Vector getSize() {
-		return size;
+		return new Vector(size.getX(), size.getY());
 	}
-	
-	/**
-	 * Returns a Rectangle object representing the rectangle surrounding the paddle represented by this ReplicatorPaddleState object.
-	 * 
-	 * @creates | result
-	 * @post | result.getTopLeft().equals(getCenter().minus(getSize()))
-	 * @post | result.getBottomRight().equals(getCenter().plus(getSize()))
-	 */
+
 	public Rect rectangleOf() {
 		return new Rect(center.minus(size), center.plus(size));
 	}
 	
-	/**
-	 * Sets the center Point object contained within this ReplicatorPaddleState object to the one supplied.
-	 * @creates | result
-	 * @pre | center != null
-	 * @post | result.getCenter().equals(center)
-	 */
 	public ReplicatorPaddleState changeCenter(Point center) {
 		return new ReplicatorPaddleState(center, size, lifetime);
 	}
@@ -245,7 +244,6 @@ final class ReplicatorPaddleState extends PaddleState {
 	/**
 	 * Creates a copy this ReplicatorPaddleState in which the lifetime was reset.
 	 * @creates | result
-	 * @inspects | this
 	 * @post | result.getLifetime() == MAX_REPLICATOR_LIFETIME
 	 */
 	public ReplicatorPaddleState resetLifetime() {
@@ -273,6 +271,7 @@ final class ReplicatorPaddleState extends PaddleState {
 	 * Returns a ballPaddleHitResults object containing the ball and paddle states and the required number of replicates to be made,
 	 * resulting from a possible ball-paddle hit. A replicator paddle requests 1, 2 or 3 replicates, or 0 in case there was no hit.
 	 * @creates | result
+	 * @inspects | ball
 	 * @pre | ball != null
 	 * @pre | paddleDir == 0 || paddleDir == 1 || paddleDir == -1
 	 * @post | result.reps >= 0 && result.reps <= 3
@@ -295,7 +294,7 @@ final class ReplicatorPaddleState extends PaddleState {
 	
 	/**
 	 * Returns a copy of this ReplicatorPaddleState object representing a replicator paddle that has been powered up.
-	 * This basically resets its lifetime.
+	 * This basically resets its lifetime in case of replicator paddles.
 	 * @creates | result
 	 * @post | result.getCenter().equals(old(getCenter()))
 	 * @post | result.getSize().equals(old(getSize()))
