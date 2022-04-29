@@ -242,6 +242,10 @@ public class BreakoutState {
 	/**
 	 * Alters paddle such that it has moved maximum 10 units to the right in comparison with the old paddle state,
 	 * while keeping it inside the game field.
+	 * 
+	 * Assuming that the paddle speed is expressed in units of 1/ms, the paddle moves at a speed of 10000/s,
+	 * which is sufficient to move from one end of the game field to the other one in 5 seconds.
+	 * 
 	 * @inspects | this
 	 * @mutates | this
 	 * @post The paddle has moved maximum ten units to the right.
@@ -261,6 +265,10 @@ public class BreakoutState {
 	/**
 	 * Alters paddle such that it has moved maximum 10 units to the left in comparison with the old paddle state,
 	 * while keeping it inside the game field
+	 * 
+	 * Assuming that the paddle speed is expressed in units of 1/ms, the paddle moves at a speed of 10000/s,
+	 * which is sufficient to move from one end of the game field to the other one in 5 seconds.
+	 * 
 	 * @inspects | this
 	 * @mutates | this
 	 * @post The paddle has moved maximum ten units to the left.

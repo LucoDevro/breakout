@@ -106,6 +106,10 @@ class NormalBall extends Ball {
 	/**
 	 * Changes the state of this NormalBall object so that it reflects a ball that has rolled for a
 	 * non-zero amount of time into its current direction and at a speed, both contained in its velocity Vector.
+	 * 
+	 * Assuming that speed is expressed in units of 1/ms or 1000/s, displacements can be quickly achieved by scaling
+	 * the velocity vector.
+	 * 
 	 * @mutates | this
 	 * @pre | elapsedTime != 0
 	 * @post | getCenter().equals(old(getCenter().plus(getVelocity().scaled(elapsedTime))))
@@ -318,6 +322,10 @@ class SuperBall extends Ball {
 	/**
 	 * Changes the state of this SuperBall object so that it reflects a ball that has rolled for a
 	 * non-zero amount of time into its current direction and at a speed, both contained in its velocity Vector.
+	 * 
+	 * Assuming that speed is expressed in units of 1/ms or 1000/s, displacements can be quickly achieved by scaling
+	 * the velocity vector.
+	 * 
 	 * @mutates | this
 	 * @pre | elapsedTime != 0
 	 * @post | getCenter().equals(old(getCenter()).plus(getVelocity().scaled(elapsedTime)))
