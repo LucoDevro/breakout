@@ -199,9 +199,6 @@ class NormalBall extends Ball {
 	/**
 	 * Changes the motion of the ball depending on whether the block it hit, was destroyed.
 	 * For normal balls, this means it should bounce anyway.
-	 * @mutates | this
-	 * @pre | rect != null
-	 * @post | getVelocity().equals(old(getVelocity()).mirrorOver(rectangleOf().overlap(rect)))
 	 */
 	public void hitBlock(Rect rect, boolean destroyed) {
 		Vector direction = this.rectangleOf().overlap(rect);
@@ -352,10 +349,8 @@ class SuperBall extends Ball {
 	
 	/**
 	 * Changes the motion of the ball depending on whether the block it hit, was destroyed.
-	 * For supercharged balls, this means it bounces only on sturdy blocks with a lifetime bigger than 1.
-	 * @mutates | this
-	 * @pre | rect != null
-	 * @post | getCenter().equals(old(getCenter()))
+	 * For supercharged balls, this means it bounces only on blocks that were not destroyed,
+	 * i.e. sturdy blocks with a lifetime bigger than 1.
 	 */
 	public void hitBlock(Rect rect, boolean destroyed) {
 		if (!(destroyed)) {
